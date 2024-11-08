@@ -10,10 +10,12 @@ services:
       - crud-users-net
     restart: always
     links:
-      - api-crud-users:api-crud-users
+      - api-users:api-users
+    depends_on:
+      - api-users
 
 
-  api-crud-users:
+  api-users:
     build: api/
     networks:
       - crud-users-net
@@ -21,7 +23,14 @@ services:
       - db-crud-users
     links:
       - "db-crud-users:db-crud-users"
-
+    environment:
+      MYSQL_DATABASE_USER: testuser
+      MYSQL_DATABASE_PASSWORD: testpass
+      MYSQL_DATABASE_DB: utn
+      MYSQL_DATABASE_HOST: db-crud-users  # Nombre del servicio db en Docker Compose
+      MYSQL_DATABASE_PORT: 3306
+    ports:
+      - "5000:5000"  # sacar después
 
   db-crud-users:
     build: db/
@@ -35,6 +44,8 @@ services:
       MYSQL_DATABASE: utn
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpass
+    ports:
+      - "3306:3306"
 
 volumes:
   db-crud-users-data:

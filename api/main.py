@@ -35,8 +35,10 @@ def add_user():
 		cursor.close() 
 		conn.close()
 
+@app.route('/test', methods=['GET'])
+def test():
+    return "API is working"
 
-		
 @app.route('/users')
 def users():
 	try:

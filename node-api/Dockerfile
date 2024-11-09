@@ -7,6 +7,7 @@ WORKDIR /app
 # Copiar los archivos del proyecto
 COPY . .
 
+RUN npm set timeout 600000
 # Instalar las dependencias
 RUN npm install
 

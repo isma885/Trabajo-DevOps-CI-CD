@@ -1,0 +1,26 @@
+stages:
+  - secrets-scanning
+
+variables:
+  ALUMNO: devops-grupo11
+  TAG: devops-runner
+
+# Job para escanear secretos en la API de Python
+scan-secrets-python:
+  image: ubuntu
+  stage: secrets-scanning
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: scan-secrets-python-$ALUMNO.txt
+  script:
+    - apt update
+    - apt install python3 python3-pip python3-virtualenv python3-venv -y
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install detect-secrets
+    - cd python-api  # Cambia al directorio de la API de Python
+    - detect-secrets scan . --all-files --exclude-files venv/ > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME

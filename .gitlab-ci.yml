@@ -28,15 +28,17 @@ scan-secrets-python:
 
 # Job para escanear secretos en la API de Node
 scan-secrets-node:
-  image: node:18
+  image: python:3.9-bullseye
   stage: secrets-scanning
   tags:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
   script:
-    - npm install detect-secrets  # Usa detect-secrets desde Node
-    - cd node-api  # Cambia al directorio de la API de Node
+    - apt update
+    - apt install -y nodejs npm  # Instala Node en la imagen de Python
+    - pip install detect-secrets
+    - cd node-api
     - npm install  # Instala las dependencias de Node definidas en package.json
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
@@ -52,8 +54,11 @@ scan-secrets-react:
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
   script:
-    - npm install -g detect-secrets  # Usa detect-secrets desde Node
+    - apt update
+    - apt install -y python3 python3-pip  # Instala Python y pip en la imagen de Node
+    - pip3 install detect-secrets  # Instala detect-secrets
     - cd web  # Cambia al directorio del frontend React
+    - npm install  # Instala las dependencias del proyecto React
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:

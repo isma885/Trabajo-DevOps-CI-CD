@@ -11,12 +11,11 @@ services:
     restart: always
     depends_on:
       - api-users
+      - api-node
 
   api-node:
     build: node-api/
     restart: always
-    ports:
-      - "1000:1000"
     networks:
       - crud-users-net
 

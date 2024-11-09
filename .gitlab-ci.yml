@@ -12,7 +12,7 @@ scan-secrets-python:
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: scan-secrets-python-$ALUMNO.txt
+    ARTIFACT_FILE_NAME: scan-secrets-python-$ALUMNO.json
   cache:
     paths:
       - .venv/
@@ -22,7 +22,7 @@ scan-secrets-python:
     - source venv/bin/activate
     - pip install detect-secrets
     - cd python-api
-    - detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -34,17 +34,18 @@ scan-secrets-node:
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
+    ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.json
   cache:
     paths:
       - node_modules/
+      - .venv/
   script:
-    - apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
+    #- apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install detect-secrets
     - cd node-api
-    - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -56,18 +57,19 @@ scan-secrets-react:
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
+    ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.json
   cache:
     paths:
       - node_modules/
+      - .venv/
   script:
-    - apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
+    #- apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install detect-secrets
     - cd web
     - npm install
-    - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

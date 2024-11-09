@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Instalar las dependencias
+RUN npm set timeout 600000
 RUN npm install
 
 # Exponer el puerto 1000

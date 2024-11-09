@@ -35,8 +35,9 @@ scan-secrets-node:
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
   script:
-    - npm install -g detect-secrets  # Usa detect-secrets desde Node
+    - npm install detect-secrets  # Usa detect-secrets desde Node
     - cd node-api  # Cambia al directorio de la API de Node
+    - npm install  # Instala las dependencias de Node definidas en package.json
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:

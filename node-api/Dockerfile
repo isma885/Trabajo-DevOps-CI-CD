@@ -1,0 +1,17 @@
+# Usar una imagen base de Node.js
+FROM node:16
+
+# Crear el directorio de la aplicación
+WORKDIR /app
+
+# Copiar los archivos del proyecto
+COPY . .
+
+# Instalar las dependencias
+RUN npm install
+
+# Exponer el puerto 1000
+EXPOSE 1000
+
+# Iniciar la aplicación
+CMD ["npm", "start"]

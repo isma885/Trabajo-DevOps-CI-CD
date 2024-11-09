@@ -1,10 +1,11 @@
 import pymysql
 from app import app
+import time
 from db_config import mysql
 from flask import jsonify
 from flask import flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
-		
+
 @app.route('/users', methods=['POST'])
 def add_user():
 	try:
@@ -34,10 +35,6 @@ def add_user():
 	finally:
 		cursor.close() 
 		conn.close()
-
-@app.route('/test', methods=['GET'])
-def test():
-    return "API is working"
 
 @app.route('/users')
 def users():

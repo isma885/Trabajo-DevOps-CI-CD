@@ -36,7 +36,7 @@ scan-secrets-node:
     ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
   script:
     - npm install -g detect-secrets  # Usa detect-secrets desde Node
-    - cd api-node  # Cambia al directorio de la API de Node
+    - cd node-api  # Cambia al directorio de la API de Node
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
@@ -52,7 +52,7 @@ scan-secrets-react:
     ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
   script:
     - npm install -g detect-secrets  # Usa detect-secrets desde Node
-    - cd frontend-react  # Cambia al directorio del frontend React
+    - cd web  # Cambia al directorio del frontend React
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:

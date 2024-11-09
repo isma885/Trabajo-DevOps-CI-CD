@@ -36,12 +36,12 @@ scan-secrets-node:
     ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
   script:
     - apt update
-    - apt install -y python3 python3-pip python3-venv nodejs npm
+    - apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install detect-secrets
     - cd node-api
-    - npm install  # Instala las dependencias de Node definidas en package.json
+    - npm install
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:

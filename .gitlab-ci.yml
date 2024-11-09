@@ -24,3 +24,36 @@ scan-secrets-python:
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
+
+
+# Job para escanear secretos en la API de Node
+scan-secrets-node:
+  image: node:18
+  stage: secrets-scanning
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
+  script:
+    - npm install -g detect-secrets  # Usa detect-secrets desde Node
+    - cd api-node  # Cambia al directorio de la API de Node
+    - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+# Job para escanear secretos en el frontend de React
+scan-secrets-react:
+  image: node:18
+  stage: secrets-scanning
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
+  script:
+    - npm install -g detect-secrets  # Usa detect-secrets desde Node
+    - cd frontend-react  # Cambia al directorio del frontend React
+    - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME

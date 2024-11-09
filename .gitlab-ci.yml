@@ -13,18 +13,19 @@ scan-secrets-python:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-python-$ALUMNO.txt
+  cache:
+    paths:
+      - .venv/
   script:
-    - apt update
-    - apt install python3 python3-pip python3-virtualenv python3-venv -y
+    - apt update && apt install python3 python3-pip python3-virtualenv python3-venv -y
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install detect-secrets
-    - cd python-api  # Cambia al directorio de la API de Python
-    - detect-secrets scan . --all-files --exclude-files venv/ > "../$ARTIFACT_FILE_NAME"
+    - cd python-api
+    - detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
-
 
 # Job para escanear secretos en la API de Node
 scan-secrets-node:
@@ -34,20 +35,21 @@ scan-secrets-node:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.txt
+  cache:
+    paths:
+      - node_modules/
   script:
-    - apt update
-    - apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
+    - apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
     - python3 -m venv venv
     - source venv/bin/activate
     - pip install detect-secrets
     - cd node-api
-    #- npm install
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Job para escanear secretos en el frontend de React 
+# Job para escanear secretos en el frontend de React
 scan-secrets-react:
   image: node:18
   stage: secrets-scanning
@@ -55,14 +57,16 @@ scan-secrets-react:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
+  cache:
+    paths:
+      - node_modules/
   script:
-    - apt update
-    - apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
+    - apt update && apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
     - python3 -m venv venv
     - source venv/bin/activate
-    - pip3 install detect-secrets  # Instala detect-secrets
-    - cd web  # Cambia al directorio del frontend React
-    - npm install  # Instala las dependencias del proyecto React
+    - pip install detect-secrets
+    - cd web
+    - npm install
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:

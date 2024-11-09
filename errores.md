@@ -63,3 +63,7 @@ Tuvimos problemas redireccionando las peticiones del nginx. Lo solucionamos escr
         proxy_pass         http://$upstream;
     }
 ```
+
+### 3. Problemas con el escaneo de secretos con node
+
+No se instalaba bien python para usar `detect-secrets`. Lo solucionamos con la siguiente línea en el script del job: `apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm`

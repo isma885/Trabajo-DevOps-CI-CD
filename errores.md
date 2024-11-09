@@ -1,6 +1,6 @@
 # Errores
 
-1. API no conectada en la BD
+### 1. API no conectada en la BD
 
 ```
 api-users-1      | UnboundLocalError: cannot access local variable 'cursor' where it is not associated with a value
@@ -43,3 +43,25 @@ api-users-1      | Error al conectar con la base de datos: 'cryptography' packag
 ```
 
 Ahí nos dimos cuenta de que la solución era añadir `cryptography` en `requirements.txt`
+
+
+### 2. Redireccionamiento del proxy
+
+```
+{
+    "message": "Not Found: http://api-users:5000/python/users",
+    "status": 404
+}
+```
+
+Tuvimos problemas redireccionando las peticiones del nginx. Lo solucionamos escribiendo bien el rewrite en `nginx.conf`.
+
+```
+    location /apipython {
+        set $upstream api-users:5000;
+        rewrite ^/apipython(.*)$ $1 break;
+        proxy_pass         http://$upstream;
+    }
+```
+
+### 3. 

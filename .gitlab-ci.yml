@@ -43,7 +43,7 @@ scan-secrets-node:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Job para escanear secretos en el frontend de React
+# Job para escanear secretos en el frontend de React 
 scan-secrets-react:
   image: node:18
   stage: secrets-scanning

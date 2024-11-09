@@ -41,7 +41,7 @@ scan-secrets-node:
     - source venv/bin/activate
     - pip install detect-secrets
     - cd node-api
-    - npm install
+    #- npm install
     - detect-secrets scan . --all-files > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
@@ -57,7 +57,9 @@ scan-secrets-react:
     ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.txt
   script:
     - apt update
-    - apt install -y python3 python3-pip  # Instala Python y pip en la imagen de Node
+    - apt install -y --no-install-recommends python3 python3-pip python3-venv nodejs npm
+    - python3 -m venv venv
+    - source venv/bin/activate
     - pip3 install detect-secrets  # Instala detect-secrets
     - cd web  # Cambia al directorio del frontend React
     - npm install  # Instala las dependencias del proyecto React

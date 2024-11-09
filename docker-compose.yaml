@@ -12,6 +12,7 @@ services:
     depends_on:
       - api-users
       - api-node
+      - web
 
   api-node:
     build: node-api/
@@ -31,9 +32,6 @@ services:
       MYSQL_DATABASE: utn
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpass
-    #ports:
-    #  - "3306:3306"
-
 
   api-users:
     build: python-api/
@@ -48,6 +46,12 @@ services:
       MYSQL_DATABASE_DB: utn
       MYSQL_DATABASE_HOST: db-crud-users
       MYSQL_DATABASE_PORT: 3306
+
+  web:
+    build: web/
+    restart: always
+    networks:
+      - crud-users-net
 
 volumes:
   db-crud-users-data:

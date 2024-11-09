@@ -63,5 +63,3 @@ Tuvimos problemas redireccionando las peticiones del nginx. Lo solucionamos escr
         proxy_pass         http://$upstream;
     }
 ```
-
-### 3. 

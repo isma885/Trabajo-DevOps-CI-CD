@@ -1,5 +1,6 @@
 stages:
   - secrets-scanning
+  - linting
 
 variables:
   ALUMNO: devops-grupo11

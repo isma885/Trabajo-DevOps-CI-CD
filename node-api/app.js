@@ -1,10 +1,10 @@
-const express = require('express');
+var express = require('express');
 //const mysql = require('mysql2');
 //const bcrypt = require('bcrypt');
 //const dotenv = require('dotenv');
 //dotenv.config();
 
-const app = express();
+var app = express();
 app.use(express.json());
 
 /*
@@ -29,7 +29,7 @@ db.connect((err) => {
 */
 
 // Rutas
-app.get('/test', (req, res) => {
+app.get('/test', function(req, res) {
     res.send('API en Node andando.');
 });
 
@@ -123,7 +123,7 @@ app.delete('/users/:id', (req, res) => {
 */
 
 // Iniciar el servidor
-const PORT = 1000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+var PORT = 1000;
+app.listen(PORT, function() {
+    console.log('Servidor corriendo en el puerto ' + PORT);
 });

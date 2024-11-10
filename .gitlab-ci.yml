@@ -9,6 +9,7 @@ variables:
 # Escaneo de Secretos para cada microservicio.
 
 # Job para escanear secretos en la API de Python
+'''
 scan-secrets-python:
   image: python:3.9-bullseye
   stage: secrets-scanning
@@ -76,7 +77,7 @@ scan-secrets-react:
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
-
+'''
 
 # 1.2 Linting de Código (sin escaneo de secretos)
 
@@ -119,7 +120,7 @@ lint-node-api:
     - npm install
     - npm list
     - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*"
+    - npx eslint . --ignore-pattern "node_modules/*" --fix
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

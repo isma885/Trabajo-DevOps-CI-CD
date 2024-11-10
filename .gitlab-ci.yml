@@ -119,7 +119,7 @@ lint-node-api:
     - npm install
     - npm list
     - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*" 
+    - npx eslint . --ignore-pattern "node_modules/*"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

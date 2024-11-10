@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import request
 from werkzeug.security import generate_password_hash
 
+
 @app.route('/users', methods=['POST'])
 def add_user():
     try:
@@ -57,7 +58,7 @@ def users():
         cursor.close()
         conn.close()
 
-      
+
 @app.route('/users/<int:id>')
 def user(id):
     try:
@@ -82,14 +83,15 @@ def update_user(id):
         _id = id
         _name = _json['name']
         _email = _json['email']
-        _password = _json['pwd']		
+        _password = _json['pwd']	
         # validate the received values
         if _name and _email and _password and _id and request.method == 'PUT':
             # do not save password as a plain text
             _hashed_password = generate_password_hash(_password)
             # save edits
             sql = (
-                "UPDATE tbl_user SET user_name=%s, user_email=%s, user_password=%s "
+                "UPDATE tbl_user SET user_name=%s, "
+                "user_email=%s, user_password=%s "
                 "WHERE user_id=%s")
             data = (_name, _email, _hashed_password, _id,)
             conn = mysql.connect()

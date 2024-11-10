@@ -4,7 +4,8 @@ import os
 mysql = MySQL()
 
 app.config['MYSQL_DATABASE_USER'] = os.environ.get('MYSQL_DATABASE_USER')
-app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get('MYSQL_DATABASE_PASSWORD')
+password = os.environ.get('MYSQL_DATABASE_PASSWORD')
+app.config['MYSQL_DATABASE_PASSWORD'] = password
 app.config['MYSQL_DATABASE_DB'] = os.environ.get('MYSQL_DATABASE_DB')
 mysql_host = os.environ.get('MYSQL_DATABASE_HOST')
 app.config['MYSQL_DATABASE_HOST'] = mysql_host or 'localhost'

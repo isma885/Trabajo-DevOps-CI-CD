@@ -98,7 +98,7 @@ lint-python-api:
     - cd python-api
     - ls -la
     - pip freeze
-    - flake8 . --exclude=venv,.venv,build,dist --verbose
+    - flake8 . --exclude=venv,.venv,build,dist --verbose > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -120,7 +120,7 @@ lint-node-api:
     - npm list
     - npm list enlist
     - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*" --debug --print-config
+    - npx eslint . --ignore-pattern "node_modules/*" --debug --print-config > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

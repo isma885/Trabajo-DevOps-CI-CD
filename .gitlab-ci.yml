@@ -1,9 +1,12 @@
 stages:
   - secrets-scanning
+  - linting
 
 variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
+
+# Escaneo de Secretos para cada microservicio.
 
 # Job para escanear secretos en la API de Python
 scan-secrets-python:
@@ -70,6 +73,68 @@ scan-secrets-react:
     - cd web
     - npm install
     - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+
+# 1.2 Linting de Código (sin escaneo de secretos)
+
+# Linting para la API de Python
+lint-python-api:
+  image: python:3.9-bullseye
+  stage: linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-python-api-$ALUMNO.json
+  cache:
+    paths:
+      - .venv/
+  script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install flake8
+    - cd python-api
+    - flake8 . --exclude=venv/*, .venv/*, build/*, dist/* > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+# Linting para la API de Node
+lint-node-api:
+  image: node:18
+  stage: linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-node-api-$ALUMNO.json
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - cd node-api
+    - npm install
+    - npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+# Linting para el frontend de React
+lint-react:
+  image: node:18
+  stage: linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-react-$ALUMNO.json
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - cd web
+    - npm install
+    - npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

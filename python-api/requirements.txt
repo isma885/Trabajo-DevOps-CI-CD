@@ -4,3 +4,4 @@ Flask-MySQL==1.5.2
 PyMySQL==1.1.0
 Werkzeug==2.3.7
 cryptography==43.0.1
+flake8==6.0.0

@@ -124,6 +124,6 @@ app.delete('/users/:id', (req, res) => {
 
 // Iniciar el servidor
 var PORT = 1000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+app.listen(PORT, function() {
+    console.log('Servidor corriendo en el puerto ' + PORT);
 });

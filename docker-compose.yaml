@@ -13,12 +13,14 @@ services:
       - api-users
       - api-node
       - web
+    image: $CI_REGISTRY/nginx-$ALUMNO:latest
 
   api-node:
     build: node-api/
     restart: always
     networks:
       - crud-users-net
+    image: $CI_REGISTRY/node-api-$ALUMNO:latest
 
   db-crud-users:
     build: db/
@@ -27,6 +29,7 @@ services:
       - crud-users-net
     volumes:
       - db-crud-users-data:/var/lib/mysql
+    image: $CI_REGISTRY/db-$ALUMNO:latest
     environment:
       MYSQL_ROOT_PASSWORD: r00t
       MYSQL_DATABASE: utn
@@ -40,6 +43,7 @@ services:
       - crud-users-net
     depends_on: 
       - db-crud-users
+    image: $CI_REGISTRY/python-api-$ALUMNO:latest
     environment:
       MYSQL_DATABASE_USER: testuser
       MYSQL_DATABASE_PASSWORD: testpass
@@ -52,6 +56,7 @@ services:
     restart: always
     networks:
       - crud-users-net
+    image: $CI_REGISTRY/web-$ALUMNO:latest
 
 volumes:
   db-crud-users-data:

@@ -1,7 +1,5 @@
 # Pipelines
 
-## Escaneo de secretos
+![](./imgs/pipelines.png)
 
-![](./imgs/scan-secrets.png)
-
-![](./imgs/scan-secrets2.png)
+![](./imgs/jobs.png)

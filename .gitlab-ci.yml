@@ -9,75 +9,9 @@ variables:
 # Escaneo de Secretos para cada microservicio.
 
 # Job para escanear secretos en la API de Python
-'''
-scan-secrets-python:
-  image: python:3.9-bullseye
-  stage: secrets-scanning
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: scan-secrets-python-$ALUMNO.json
-  cache:
-    paths:
-      - .venv/
-  script:
-    - python3 -m venv venv
-    - source venv/bin/activate
-    - pip install detect-secrets
-    - cd python-api
-    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
 
-# Job para escanear secretos en la API de Node
-scan-secrets-node:
-  image: python:3.9-bullseye
-  stage: secrets-scanning
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: scan-secrets-node-$ALUMNO.json
-  cache:
-    paths:
-      - node_modules/
-      - .venv/
-  script:
-    - apt update && apt install -y --no-install-recommends nodejs npm
-    - python3 -m venv venv
-    - source venv/bin/activate
-    - pip install detect-secrets
-    - cd node-api
-    - npm install
-    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
 
-# Job para escanear secretos en el frontend de React
-scan-secrets-react:
-  image: python:3.9-bullseye
-  stage: secrets-scanning
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: scan-secrets-react-$ALUMNO.json
-  cache:
-    paths:
-      - node_modules/
-      - .venv/
-  script:
-    - apt update && apt install -y --no-install-recommends nodejs npm
-    - python3 -m venv venv
-    - source venv/bin/activate
-    - pip install detect-secrets
-    - cd web
-    - npm install
-    - git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
-'''
+
 
 # 1.2 Linting de Código (sin escaneo de secretos)
 

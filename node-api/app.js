@@ -29,7 +29,7 @@ db.connect((err) => {
 */
 
 // Rutas
-app.get('/test', (res) => {
+app.get('/test', function(res) {
     res.send('API en Node andando.');
 });
 

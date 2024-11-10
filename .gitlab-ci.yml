@@ -118,9 +118,8 @@ lint-node-api:
     - cd node-api
     - npm install
     - npm list
-    - npm list enlist
     - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*" --debug --print-config > "../$ARTIFACT_FILE_NAME"
+    - npx eslint . --ignore-pattern "node_modules/*" --debug --print-config 
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

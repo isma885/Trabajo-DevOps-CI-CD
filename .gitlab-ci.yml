@@ -26,7 +26,7 @@ scan-secrets-python:
         source .venv/bin/activate
         pip install detect-secrets
         cd python-api
-        detect-secrets scan . --all-files --exclude-files "venv/*" > "../$ARTIFACT_FILE_NAME"
+        detect-secrets scan . --all-files --exclude-files ".venv/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
@@ -52,7 +52,7 @@ scan-secrets-node:
         pip install detect-secrets
         cd node-api
         npm install
-        git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+        git diff --exit-code || detect-secrets scan . --all-files --exclude-files ".venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
@@ -78,7 +78,7 @@ scan-secrets-react:
         pip install detect-secrets
         cd web
         npm install
-        git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+        git diff --exit-code || detect-secrets scan . --all-files --exclude-files ".venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
@@ -328,7 +328,7 @@ docker-lint-api-python:
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate
-    - pip install checkov
+    - pip install --upgrade checkov
     - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:

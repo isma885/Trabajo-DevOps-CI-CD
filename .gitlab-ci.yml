@@ -328,7 +328,8 @@ docker-lint-api-python:
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate
-    - pip install --upgrade checkov
+    - pip install --upgrade pip
+    - pip install checkov
     - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:

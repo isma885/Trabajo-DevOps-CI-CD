@@ -152,7 +152,7 @@ lint-react:
 # 1.3 Build de codigo
 
 # buil de la api python
-dockerize-api:
+dockerize-api.python:
   image: docker
   stage: build
   tags: [$TAG]
@@ -185,7 +185,7 @@ dockerize-api:
 
 
 # build de la api node
-dockerize-api:
+dockerize-api-node:
   image: docker
   stage: build
   tags: [$TAG]
@@ -218,7 +218,7 @@ dockerize-api:
 
 
 # build de react
-dockerize-api:
+dockerize-web:
   image: docker
   stage: build
   tags: [$TAG]

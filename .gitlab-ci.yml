@@ -1,6 +1,8 @@
 stages:
   - secrets-scanning
-  - linting
+  - code-linting
+  - docker-linting
+  - code-static-analysis
   - build
 
 variables:
@@ -20,8 +22,8 @@ scan-secrets-python:
       - .venv/
   script:
     - git diff --exit-code python-api/ || (
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd python-api
         detect-secrets scan . --all-files --exclude-files "venv/*" > "../$ARTIFACT_FILE_NAME"
@@ -45,8 +47,8 @@ scan-secrets-node:
   script:
     - git diff --exit-code node-api/ || (
         apt update && apt install -y --no-install-recommends nodejs npm
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd node-api
         npm install
@@ -71,8 +73,8 @@ scan-secrets-react:
   script:
     - git diff --exit-code web/ || (
         apt update && apt install -y --no-install-recommends nodejs npm
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd web
         npm install
@@ -83,12 +85,12 @@ scan-secrets-react:
       - $ARTIFACT_FILE_NAME
 
 
-# 1.2 Linting de Código (sin escaneo de secretos)
+# 1.2 linting de Código (sin escaneo de secretos)
 
-# Linting para la API de Python
+# code-linting para la API de Python
 lint-python-api:
   image: python:3.9-bullseye
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -97,8 +99,8 @@ lint-python-api:
     paths:
       - .venv/
   script:
-    - python3 -m venv venv
-    - source venv/bin/activate
+    - python3 -m venv .venv
+    - source .venv/bin/activate
     - pip install flake8
     - cd python-api
     - ls -la
@@ -108,10 +110,10 @@ lint-python-api:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Linting para la API de Node
+# code-linting para la API de Node
 lint-node-api:
   image: node:18
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -129,10 +131,10 @@ lint-node-api:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Linting para el frontend de React
+# code-linting para el frontend de React
 lint-react:
   image: node:18
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -312,4 +314,22 @@ dockerize-nginx:
         - nginx/Dockerfile
   allow_failure: true
 
-
+docker-lint-api-python:
+  stage: docker-linting
+  image: python:3.9-bullseye
+  tags:
+    - $TAG
+  cache:
+    paths:
+      - .venv/
+  variables:
+    ARTIFACT_FILE_NAME: api-python-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: python-api
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install checkov
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME

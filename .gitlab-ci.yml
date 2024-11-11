@@ -313,3 +313,75 @@ dockerize-nginx:
   allow_failure: true
 
 
+# 1.4 Escaneo de seguridad con Trivy
+
+security-scan-api-python:
+  image: aquasec/trivy:latest
+  stage: security_scan
+  tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/python-api-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/python-api-$ALUMNO:latest
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_NAME
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_LATEST
+  allow_failure: false
+  dependencies:
+    - dockerize-api.python
+
+security-scan-api-node:
+  image: aquasec/trivy:latest
+  stage: security_scan
+  tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/node-api-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/node-api-$ALUMNO:latest
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_NAME
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_LATEST
+  allow_failure: false
+  dependencies:
+    - dockerize-api-node
+
+security-scan-web:
+  image: aquasec/trivy:latest
+  stage: security_scan
+  tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/web-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/web-$ALUMNO:latest
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_NAME
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_LATEST
+  allow_failure: false
+  dependencies:
+    - dockerize-web
+
+security-scan-db:
+  image: aquasec/trivy:latest
+  stage: security_scan
+  tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/db-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/db-$ALUMNO:latest
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_NAME
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_LATEST
+  allow_failure: false
+  dependencies:
+    - dockerize-db
+
+security-scan-nginx:
+  image: aquasec/trivy:latest
+  stage: security_scan
+  tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/nginx-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/nginx-$ALUMNO:latest
+  script:
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_NAME
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE_LATEST
+  allow_failure: false
+  dependencies:
+    - dockerize-nginx
+

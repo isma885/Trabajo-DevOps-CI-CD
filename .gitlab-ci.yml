@@ -2,6 +2,7 @@ stages:
   - secrets-scanning
   - linting
   - build
+  - security_scan
 
 variables:
   ALUMNO: devops-grupo11

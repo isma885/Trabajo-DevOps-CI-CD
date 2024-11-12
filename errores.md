@@ -187,3 +187,54 @@ Lo solucionamos indicando la versión concreta de cada una para poder hacer el a
     - njsscan web/ -o ../$ARTIFACT_FILE_NAME
 ```
 
+## 5. Cambio en api de python para el análisis SCA
+
+Al hacer el análisis SCA nos apareció esto:
+
+```
+-> Vulnerability found in pymysql version 1.1.0
+   Vulnerability ID: 71083
+   Affected spec: <1.1.1
+   ADVISORY: PyMySQL 1.1.1 addresses CVE-2024-36039, a critical
+   SQL injection vulnerability present in versions up to 1.1.0. This...
+   CVE-2024-36039
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/71083/97c
+   To ignore this vulnerability, use PyUp vulnerability id 71083 in
+   safety’s ignore command-line argument or add the ignore to your safety
+   policy file.
+
+-> Vulnerability found in werkzeug version 2.3.7
+   Vulnerability ID: 62019
+   Affected spec: <2.3.8
+   ADVISORY: Werkzeug 3.0.1 and 2.3.8 include a security fix:
+   Slow multipart parsing for large parts potentially enabling DoS...
+   PVE-2023-62019
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/62019/97c
+   To ignore this vulnerability, use PyUp vulnerability id 62019 in
+   safety’s ignore command-line argument or add the ignore to your safety
+   policy file.
+
+```
+
+Lo solucionamos cambiando las versiones:
+
+```
+PyMySQL==1.1.0 -> PyMySQL==1.1.1
+Werkzeug==2.3.7 -> Werkzeug==3.0.6
+```
+
+## 6. Cambios en api python para el análisis SAST
+
+Bandit detectó que la api estaba configurada para escuchar en todas las interfaces (0.0.0.0)
+
+```
+app.run(host='0.0.0.0')
+```
+
+Lo solucionamos especificando la interfaz local
+
+```
+app.run(host='127.0.0.1')
+```

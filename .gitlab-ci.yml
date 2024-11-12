@@ -413,3 +413,36 @@ sca-scan-react:
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
+
+sast-scan-python:
+  image: python:3.9-bullseye
+  stage: code-analysis
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: sast-scan-python-$ALUMNO.txt
+    SCAN_DIRECTORY: python-api
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install bandit
+    - bandit -r $SCAN_DIRECTORY > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+sca-scan-python:
+  image: python:3.9-bullseye
+  stage: code-analysis
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: sca-scan-python-$ALUMNO.txt
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install safety
+    - safety check -r python-api/requirements.txt > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME

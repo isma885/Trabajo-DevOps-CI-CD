@@ -341,7 +341,7 @@ sast-scan-react:
     - python3 -m venv .venv
     - source .venv/bin/activate
     - pip install njsscan==0.2.2 semgrep==0.38.0
-    - njsscan web/ -o ../$ARTIFACT_FILE_NAME
+    - njsscan web/ > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

@@ -1,8 +1,8 @@
 stages:
   - secrets-scanning
   - code-linting
-  - docker-linting
   - code-analysis
+  - docker-linting
   - build
 
 variables:
@@ -443,6 +443,24 @@ sca-scan-python:
     - source .venv/bin/activate
     - pip install safety
     - safety check -r python-api/requirements.txt > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+docker-lint-python:
+  image: python:3.9-bullseye
+  stage: docker-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: python-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: python-api
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install checkov
+    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+    - checkov -f python-api/Dockerfile --framework dockerfile
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

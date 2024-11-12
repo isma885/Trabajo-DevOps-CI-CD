@@ -238,3 +238,81 @@ Lo solucionamos especificando la interfaz local
 ```
 app.run(host='127.0.0.1')
 ```
+
+## 7. Cambios en api python y dockerfile para el docker linting
+
+```
+Check: CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
+	FAILED for resource: python-api/Dockerfile.
+	File: python-api/Dockerfile:1-15
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/docker-policies/docker-policy-index/ensure-that-healthcheck-instructions-have-been-added-to-container-images
+		1  | FROM python:3
+		2  | 
+		3  | # Copy app
+		4  | COPY . /python-api
+		5  | 
+		6  | WORKDIR /python-api
+		7  | 
+		8  | # Install dependenceis
+		9  | RUN pip install -r requirements.txt
+		10 | 
+		11 | # Expose port 5000
+		12 | EXPOSE 5000
+		13 | 
+		14 | # Run the server when container is launched
+		15 | CMD ["python", "main.py"]
+Check: CKV_DOCKER_3: "Ensure that a user for the container has been created"
+	FAILED for resource: python-api/Dockerfile.
+	File: python-api/Dockerfile:1-15
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/docker-policies/docker-policy-index/ensure-that-a-user-for-the-container-has-been-created
+		1  | FROM python:3
+		2  | 
+		3  | # Copy app
+		4  | COPY . /python-api
+		5  | 
+		6  | WORKDIR /python-api
+		7  | 
+		8  | # Install dependenceis
+		9  | RUN pip install -r requirements.txt
+		10 | 
+		11 | # Expose port 5000
+		12 | EXPOSE 5000
+		13 | 
+		14 | # Run the server when container is launched
+		15 | CMD ["python", "main.py"]
+```
+
+Para solucionarlo agregamos un enpoint `/health` en la api:
+
+```
+@app.route('/health', methods=['GET'])
+def health():
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        conn.close()
+
+        return jsonify({"status": "healthy"}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"status": "unhealthy", "message": str(e)}), 500
+```
+
+Y un healthcheck en el `Dockerfile`:
+
+```
+HEALTHCHECK CMD curl --fail http://localhost:5000/health || exit 1
+```
+
+También agregamos en el `Dockerfile` la creación de un usuario no root:
+
+```
+# Crear un usuario no-root
+RUN useradd -m myuser
+
+# Cambiar al usuario no-root
+USER myuser
+```

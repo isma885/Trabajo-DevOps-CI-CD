@@ -1,6 +1,10 @@
 stages:
   - code-analysis
 
+variables:
+  ALUMNO: devops-grupo11
+  TAG: devops-runner
+
 sca-scan-node:
   image: docker
   stage: code-analysis

@@ -1,7 +1,6 @@
 stages:
   - secrets-scanning
   - code-linting
-  - docker-linting
   - code-analysis
   - docker-linting
   - build

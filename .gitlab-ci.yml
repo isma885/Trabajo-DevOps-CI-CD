@@ -321,14 +321,11 @@ sast-scan-node:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: sast-scan-node-$ALUMNO.txt
-  cache:
-    paths:
-      - .venv/
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate
     - pip install njsscan==0.2.2 semgrep==0.38.0
-    - njsscan node-api/ -o $ARTIFACT_FILE_NAME
+    - njsscan node-api/ > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -340,14 +337,11 @@ sast-scan-react:
     - $TAG
   variables:
     ARTIFACT_FILE_NAME: sast-scan-react-$ALUMNO.txt
-  cache:
-    paths:
-      - .venv/
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate
     - pip install njsscan==0.2.2 semgrep==0.38.0
-    - njsscan web/ -o $ARTIFACT_FILE_NAME
+    - njsscan web/ -o ../$ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

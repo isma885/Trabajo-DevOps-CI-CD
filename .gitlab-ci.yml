@@ -5,70 +5,36 @@ variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
 
-sca-scan-node:
-  image: docker
+sast-scan-python:
+  image: python:3.9-bullseye
   stage: code-analysis
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: sca-scan-node-$ALUMNO.txt
-    PATH_SERVER_USR: devops
-    PATH_CODE: node-api
-    DOCKER_IMAGE_NAME: $CI_REGISTRY/api-$ALUMNO:1.0.0
-    DOCKER_BUILDKIT: "1"
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    CA_CERTIFICATE: "$CA_CERTIFICATE"
-  before_script:
-    - 'which ssh-agent || ( apk update && apk add openssh-client)'
-    - eval $(ssh-agent -s)
-    - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - mkdir -p /usr/local/share/ca-certificates || exit
-    - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+    ARTIFACT_FILE_NAME: sast-scan-python-$ALUMNO.txt
+    SCAN_DIRECTORY: python-api
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
-    - scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
-      "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
-    - scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install bandit
+    - bandit -r $SCAN_DIRECTORY > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
 
-sca-scan-react:
-  image: docker
+sca-scan-python:
+  image: python:3.9-bullseye
   stage: code-analysis
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: sca-scan-node-$ALUMNO.txt
-    PATH_SERVER_USR: devops
-    PATH_CODE: web
-    DOCKER_IMAGE_NAME: $CI_REGISTRY/api-$ALUMNO:1.0.0
-    DOCKER_BUILDKIT: "1"
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    CA_CERTIFICATE: "$CA_CERTIFICATE"
-  before_script:
-    - 'which ssh-agent || ( apk update && apk add openssh-client)'
-    - eval $(ssh-agent -s)
-    - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - mkdir -p /usr/local/share/ca-certificates || exit
-    - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+    ARTIFACT_FILE_NAME: sca-scan-python-$ALUMNO.txt
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
-    - scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
-      "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
-    - scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install safety
+    - safety check --output-file $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
+

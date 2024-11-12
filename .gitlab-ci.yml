@@ -314,29 +314,6 @@ dockerize-nginx:
         - nginx/Dockerfile
   allow_failure: true
 
-'''
-docker-lint-api-python:
-  stage: docker-linting
-  image: python:3.9-bullseye
-  tags:
-    - $TAG
-  cache:
-    paths:
-      - .venv/
-  variables:
-    ARTIFACT_FILE_NAME: api-python-docker-linting-$ALUMNO.json
-    SCAN_DIRECTORY: python-api
-  script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install --upgrade pip
-    - pip install checkov
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
-'''
-
 sast-scan-node:
   image: python:3.9-bullseye
   stage: code-static-analysis

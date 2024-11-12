@@ -1,6 +1,8 @@
 stages:
   - secrets-scanning
-  - linting
+  - code-linting
+  - docker-linting
+  - code-static-analysis
   - build
 
 variables:
@@ -20,11 +22,11 @@ scan-secrets-python:
       - .venv/
   script:
     - git diff --exit-code python-api/ || (
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd python-api
-        detect-secrets scan . --all-files --exclude-files "venv/*" > "../$ARTIFACT_FILE_NAME"
+        detect-secrets scan . --all-files --exclude-files ".venv/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
@@ -45,12 +47,12 @@ scan-secrets-node:
   script:
     - git diff --exit-code node-api/ || (
         apt update && apt install -y --no-install-recommends nodejs npm
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd node-api
         npm install
-        git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+        git diff --exit-code || detect-secrets scan . --all-files --exclude-files ".venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
@@ -71,24 +73,24 @@ scan-secrets-react:
   script:
     - git diff --exit-code web/ || (
         apt update && apt install -y --no-install-recommends nodejs npm
-        python3 -m venv venv
-        source venv/bin/activate
+        python3 -m venv .venv
+        source .venv/bin/activate
         pip install detect-secrets
         cd web
         npm install
-        git diff --exit-code || detect-secrets scan . --all-files --exclude-files "venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+        git diff --exit-code || detect-secrets scan . --all-files --exclude-files ".venv/*" --exclude-files "node_modules/*" > "../$ARTIFACT_FILE_NAME"
       )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
 
 
-# 1.2 Linting de Código (sin escaneo de secretos)
+# 1.2 linting de Código (sin escaneo de secretos)
 
-# Linting para la API de Python
+# code-linting para la API de Python
 lint-python-api:
   image: python:3.9-bullseye
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -97,8 +99,8 @@ lint-python-api:
     paths:
       - .venv/
   script:
-    - python3 -m venv venv
-    - source venv/bin/activate
+    - python3 -m venv .venv
+    - source .venv/bin/activate
     - pip install flake8
     - cd python-api
     - ls -la
@@ -108,10 +110,10 @@ lint-python-api:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Linting para la API de Node
+# code-linting para la API de Node
 lint-node-api:
   image: node:18
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -129,10 +131,10 @@ lint-node-api:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# Linting para el frontend de React
+# code-linting para el frontend de React
 lint-react:
   image: node:18
-  stage: linting
+  stage: code-linting
   tags:
     - $TAG
   variables:
@@ -312,4 +314,34 @@ dockerize-nginx:
         - nginx/Dockerfile
   allow_failure: true
 
+sast-scan-node:
+  image: python:3.9-bullseye
+  stage: code-static-analysis
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: sast-scan-node-$ALUMNO.txt
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install njsscan==0.2.2 semgrep==0.38.0
+    - njsscan node-api/ > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
 
+sast-scan-react:
+  image: python:3.9-bullseye
+  stage: code-static-analysis
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: sast-scan-react-$ALUMNO.txt
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install njsscan==0.2.2 semgrep==0.38.0
+    - njsscan web/ > $ARTIFACT_FILE_NAME
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME

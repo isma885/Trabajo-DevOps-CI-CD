@@ -163,3 +163,27 @@ También cambié esta línea y la puse en dos
 ```
            sql = "UPDATE tbl_user SET user_name=%s, user_email=%s, user_password=%s WHERE user_id=%s"
 ```
+
+## 4. Error versiones para hacer el análisis SAST
+
+Al usar njsscan nos aparecía este error:
+
+```
+  File "C:\Users\Acer\AppData\Roaming\Python\Python311\site-packages\libsast\core_sgrep\semantic_sgrep.py", line 46, in format_output
+    errs = results.get('errors')
+           ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+```
+
+Encontramos en internet que podía llegar a ser un problema de versiones entre njsscan y semgrep.
+
+Lo solucionamos indicando la versión concreta de cada una para poder hacer el análisis:
+
+```
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install njsscan==0.2.2 semgrep==0.38.0
+    - njsscan web/ -o ../$ARTIFACT_FILE_NAME
+```
+

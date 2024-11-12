@@ -328,8 +328,7 @@ sast-scan-node:
     - python3 -m venv .venv
     - source .venv/bin/activate
     - pip install njsscan
-    - chmod 700 run_njsscan.sh
-    - ./run_njsscan.sh $ARTIFACT_FILE_NAME
+    - njsscan node-api/ -o $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

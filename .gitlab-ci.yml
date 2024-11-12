@@ -33,7 +33,7 @@ sca-scan-python:
     - python3 -m venv .venv
     - source .venv/bin/activate
     - pip install safety
-    - safety check --output-file $ARTIFACT_FILE_NAME
+    - safety check > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

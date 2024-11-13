@@ -137,6 +137,7 @@ def not_found(error=None):
     resp.status_code = 404
     return resp
 
+
 @app.route('/health', methods=['GET'])
 def health():
     try:

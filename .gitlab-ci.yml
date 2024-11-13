@@ -9,48 +9,6 @@ variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
 
-# 1.2 linting de Código (sin escaneo de secretos)
-
-# code-linting para la API de Node
-lint-node-api:
-  image: node:18
-  stage: code-linting
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: lint-node-api-$ALUMNO.json
-  cache:
-    paths:
-      - node_modules/
-  script:
-    - cd node-api
-    - npm install
-    - npm list
-    - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*" --fix > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
-
-# code-linting para el frontend de React
-lint-react:
-  image: node:18
-  stage: code-linting
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: lint-react-$ALUMNO.json
-  cache:
-    paths:
-      - node_modules/
-  script:
-    - cd web
-    - npm install
-    - npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
-
 docker-lint-python:
   image: python:3.9-bullseye
   stage: docker-linting

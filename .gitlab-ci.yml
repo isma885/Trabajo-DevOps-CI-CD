@@ -171,7 +171,7 @@ dockerize-all:
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
-        - docker-compose.yml
+        - docker-compose.yaml
 
 
 

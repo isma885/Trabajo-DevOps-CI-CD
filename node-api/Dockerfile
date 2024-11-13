@@ -1,18 +1,17 @@
-# Usar una imagen base de Node.js
 FROM node:16
 
-# Crear el directorio de la aplicación
-WORKDIR /app
+RUN useradd -ms /bin/bash appuser && mkdir -p /app/appuser && chown -R appuser:appuser /app/appuser
+WORKDIR /app/appuser
 
-# Copiar los archivos del proyecto
 COPY . .
 
-# Instalar las dependencias
 RUN npm set timeout 600000
 RUN npm install
 
-# Exponer el puerto 1000
 EXPOSE 1000
 
-# Iniciar la aplicación
+USER appuser
+
+HEALTHCHECK CMD curl --fail http://localhost:1000/health || exit 1
+
 CMD ["npm", "start"]

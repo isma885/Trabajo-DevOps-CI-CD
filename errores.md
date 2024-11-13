@@ -239,7 +239,7 @@ Lo solucionamos especificando la interfaz local
 app.run(host='127.0.0.1')
 ```
 
-## 7. Cambios en api python y dockerfile para el docker linting
+## 7. Cambios en dockerfiles para el docker linting
 
 ```
 Check: CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
@@ -282,32 +282,13 @@ Check: CKV_DOCKER_3: "Ensure that a user for the container has been created"
 		15 | CMD ["python", "main.py"]
 ```
 
-Para solucionarlo agregamos un enpoint `/health` en la api:
-
-```
-@app.route('/health', methods=['GET'])
-def health():
-    try:
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1")
-        cursor.fetchone()
-        conn.close()
-
-        return jsonify({"status": "healthy"}), 200
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"status": "unhealthy", "message": str(e)}), 500
-```
-
-Y un healthcheck en el `Dockerfile`:
+Para solucionarlo agregamos un enpoint `/health` en las apis y un healthcheck en el `Dockerfile`:
 
 ```
 HEALTHCHECK CMD curl --fail http://localhost:5000/health || exit 1
 ```
 
-También agregamos en el `Dockerfile` la creación de un usuario no root:
+También agregamos en los `Dockerfile` la creación de un usuario no root:
 
 ```
 # Crear un usuario no-root

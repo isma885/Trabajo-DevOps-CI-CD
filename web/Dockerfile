@@ -1,18 +1,22 @@
 FROM node:16
 
-# Copy app
+RUN useradd -m appuser
+
 COPY . /web
 
 WORKDIR /web
 
-# Instala dependencias
+RUN chown -R appuser /web
+
 RUN npm install
 
-# Compila el proyecto de React para producción
 RUN npm run build
 
-# Expone el puerto para el desarrollo de React
+USER appuser
+
 EXPOSE 3000
 
-# Comando para iniciar la aplicación de desarrollo
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000 || exit 1
+
 CMD ["npm", "start"]

@@ -22,7 +22,7 @@ docker-lint-python:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -40,7 +40,7 @@ docker-lint-node:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -58,7 +58,7 @@ docker-lint-db:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -76,7 +76,7 @@ docker-lint-nginx:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -94,7 +94,7 @@ docker-lint-web:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

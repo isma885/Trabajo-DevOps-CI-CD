@@ -11,29 +11,6 @@ variables:
 
 # 1.2 linting de Código (sin escaneo de secretos)
 
-# code-linting para la API de Python
-lint-python-api:
-  image: python:3.9-bullseye
-  stage: code-linting
-  tags:
-    - $TAG
-  variables:
-    ARTIFACT_FILE_NAME: lint-python-api-$ALUMNO.json
-  cache:
-    paths:
-      - .venv/
-  script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install flake8
-    - cd python-api
-    - ls -la
-    - pip freeze
-    - flake8 . --exclude=venv,.venv,build,dist --verbose > "../$ARTIFACT_FILE_NAME"
-  artifacts:
-    paths:
-      - $ARTIFACT_FILE_NAME
-
 # code-linting para la API de Node
 lint-node-api:
   image: node:18
@@ -98,7 +75,7 @@ docker-lint-node:
   tags:
     - $TAG
   variables:
-    ARTIFACT_FILE_NAME: python-docker-linting-$ALUMNO.txt
+    ARTIFACT_FILE_NAME: node-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: node-api
   script:
     - python3 -m venv .venv
@@ -136,6 +113,24 @@ docker-lint-nginx:
   variables:
     ARTIFACT_FILE_NAME: nginx-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: nginx
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install checkov
+    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+docker-lint-web:
+  image: python:3.9-bullseye
+  stage: docker-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: web-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: web
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate

@@ -9,6 +9,71 @@ variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
 
+# 1.2 linting de Código (sin escaneo de secretos)
+
+# code-linting para la API de Python
+lint-python-api:
+  image: python:3.9-bullseye
+  stage: code-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-python-api-$ALUMNO.json
+  cache:
+    paths:
+      - .venv/
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install flake8
+    - cd python-api
+    - ls -la
+    - pip freeze
+    - flake8 . --exclude=venv,.venv,build,dist --verbose > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+# code-linting para la API de Node
+lint-node-api:
+  image: node:18
+  stage: code-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-node-api-$ALUMNO.json
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - cd node-api
+    - npm install
+    - npm list
+    - ls -la
+    - npx eslint . --ignore-pattern "node_modules/*" --fix > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+# code-linting para el frontend de React
+lint-react:
+  image: node:18
+  stage: code-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: lint-react-$ALUMNO.json
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - cd web
+    - npm install
+    - npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
 docker-lint-python:
   image: python:3.9-bullseye
   stage: docker-linting
@@ -22,7 +87,59 @@ docker-lint-python:
     - source .venv/bin/activate
     - pip install checkov
     - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f python-api/Dockerfile --framework dockerfile
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+docker-lint-node:
+  image: python:3.9-bullseye
+  stage: docker-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: python-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: node-api
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install checkov
+    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+docker-lint-db:
+  stage: docker-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: db-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: db
+  script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install checkov
+    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
+  artifacts:
+    paths:
+      - $ARTIFACT_FILE_NAME
+
+docker-lint-nginx:
+  stage: docker-linting
+  tags:
+    - $TAG
+  variables:
+    ARTIFACT_FILE_NAME: nginx-docker-linting-$ALUMNO.txt
+    SCAN_DIRECTORY: nginx
+  script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install checkov
+    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME

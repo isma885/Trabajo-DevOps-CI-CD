@@ -51,8 +51,8 @@ dockerize-all:
   script:
     # Construir y subir imágenes usando docker-compose
     - echo "Construyendo y subiendo todas las imágenes con docker-compose..."
-    - docker-compose -f docker-compose.yaml build --no-cache
-    - docker-compose -f docker-compose.yaml push
+    - docker compose -f docker-compose.yaml build --no-cache
+    - docker compose -f docker-compose.yaml push
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:

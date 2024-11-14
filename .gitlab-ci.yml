@@ -157,21 +157,37 @@ dockerize-all:
   image: docker:20.10.7
   stage: build
   tags: [$TAG]
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY/api-$ALUMNO:1.0.0
+    DOCKER_IMAGE_LATEST: $CI_REGISTRY/api-$ALUMNO:latest
+    DOCKER_BUILDKIT: "1"
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    CA_CERTIFICATE: "$CA_CERTIFICATE"  # Si tienes un certificado CA personalizado
   services:
     - name: docker:24.0.2-dind
       alias: docker
+      command:
+      - /bin/sh
+      - -c
+      - echo "$CA_CERTIFICATE" > /usr/local/share/ca-certificates/my-ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
   before_script:
-    - docker info
+    - echo "Verificando la versión de Docker..."
+    - docker version  # Verifica la versión de Docker instalada
+    - docker info     # Información detallada del Docker Daemon
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
   script:
-    - docker-compose -f docker-compose.yml build
-    - docker-compose -f docker-compose.yml push
+    - echo "Construyendo y subiendo imágenes con Docker Compose..."
+    - docker-compose -f docker-compose.yml build  # Construcción de las imágenes
+    - docker-compose -f docker-compose.yml push   # Push de las imágenes al registro
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
-        - docker-compose.yaml
+        - docker-compose.yaml  # Asegura que docker-compose.yml esté presente
+
 
 
 

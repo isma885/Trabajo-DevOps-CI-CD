@@ -1,9 +1,9 @@
 stages:
+  - build
 #  - secrets-scanning
 #  - code-linting
 #  - code-analysis
 #  - docker-linting
-  - build
 
 variables:
   ALUMNO: devops-grupo11

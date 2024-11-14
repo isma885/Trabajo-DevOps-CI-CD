@@ -35,6 +35,8 @@ dockerize-all:
     # Instalar docker-compose manualmente
     - apk add --no-cache docker-compose
     - docker-compose --version
+    - which docker-compose
+    - ls -l /usr/local/bin/
     - apk add --no-cache curl
     - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose

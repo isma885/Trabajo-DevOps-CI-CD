@@ -177,6 +177,8 @@ dockerize-all:
     - docker version  # Verifica la versión de Docker instalada
     - docker info     # Información detallada del Docker Daemon
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - echo "Instalando curl..."
+    - apk update && apk add --no-cache curl  # Instala curl usando Alpine's package manager
     - curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
   script:
@@ -187,6 +189,7 @@ dockerize-all:
     - if: $CI_COMMIT_BRANCH
       exists:
         - docker-compose.yaml  # Asegura que docker-compose.yml esté presente
+
 
 
 

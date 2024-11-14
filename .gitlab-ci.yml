@@ -43,7 +43,7 @@ dockerize-all:
     - chmod +x /usr/local/bin/docker-compose
     
     # Asegúrate de que la ruta esté correcta
-    - export PATH=$PATH:/usr/local/bin
+    - export PATH=/usr/local/bin:$PATH
     
     # Crear un enlace simbólico si no existe
     - if [ ! -e /usr/bin/docker-compose ]; then ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose; fi

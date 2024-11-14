@@ -184,10 +184,10 @@ dockerize-all:
     - echo "Construyendo imágenes Docker para todos los servicios con docker-compose..."
     
     # Usamos docker-compose para construir las imágenes de todos los servicios definidos en el archivo docker-compose.yml
-    - docker-compose -f docker-compose.yml build --no-cache  # Construcción de las imágenes sin caché
+    - docker-compose -f docker-compose.yaml build --no-cache  # Construcción de las imágenes sin caché
     
     # Subir todas las imágenes construidas al registro de Docker
-    - docker-compose -f docker-compose.yml push
+    - docker-compose -f docker-compose.yaml push
 
   rules:
     - if: $CI_COMMIT_BRANCH

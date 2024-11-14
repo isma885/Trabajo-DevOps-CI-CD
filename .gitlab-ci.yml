@@ -1,4 +1,8 @@
 stages:
+  - secrets-scanning
+  - code-linting
+  - code-analysis
+  - docker-linting
   - build
 
 variables:
@@ -192,7 +196,7 @@ dockerize-all:
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
-        - docker-compose.yml  # Asegura que docker-compose.yml esté presente
+        - docker-compose.yaml  # Asegura que docker-compose.yml esté presente
 
 
 

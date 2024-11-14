@@ -1,9 +1,5 @@
 stages:
   - build
-#  - secrets-scanning
-#  - code-linting
-#  - code-analysis
-#  - docker-linting
 
 variables:
   ALUMNO: devops-grupo11
@@ -159,15 +155,12 @@ dockerize-all:
   tags: [$TAG]
   variables:
     # Variables para las imágenes Docker
-    DOCKER_IMAGE_PYTHON: $CI_REGISTRY/python-api-$ALUMNO:1.0.0
-    DOCKER_IMAGE_NODE: $CI_REGISTRY/node-api-$ALUMNO:1.0.0
-    DOCKER_IMAGE_REACT: $CI_REGISTRY/web-$ALUMNO:1.0.0
     DOCKER_IMAGE_LATEST: $CI_REGISTRY/$ALUMNO:latest  # Imagen común para el tag latest
+    CA_CERTIFICATE: "$CA_CERTIFICATE"  # Certificado CA personalizado si es necesario
     DOCKER_BUILDKIT: "1"
     DOCKER_DRIVER: overlay2
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-    CA_CERTIFICATE: "$CA_CERTIFICATE"  # Certificado CA personalizado si es necesario
   services:
     - name: docker:24.0.2-dind
       alias: docker
@@ -187,29 +180,20 @@ dockerize-all:
     - curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
   script:
-    # Construir y subir imágenes para todos los servicios
-    - echo "Construyendo imágenes Docker para todos los servicios..."
-
-    # Construcción y push para Python API
-    - docker build --pull -t "$DOCKER_IMAGE_PYTHON" -t "$DOCKER_IMAGE_LATEST" python-api/
-    - docker push "$DOCKER_IMAGE_PYTHON"
-    - docker push "$DOCKER_IMAGE_LATEST"
-
-    # Construcción y push para Node API
-    - docker build --pull -t "$DOCKER_IMAGE_NODE" -t "$DOCKER_IMAGE_LATEST" node-api/
-    - docker push "$DOCKER_IMAGE_NODE"
-    - docker push "$DOCKER_IMAGE_LATEST"
-
-    # Construcción y push para React (Frontend)
-    - docker build --pull -t "$DOCKER_IMAGE_REACT" -t "$DOCKER_IMAGE_LATEST" web/
-    - docker push "$DOCKER_IMAGE_REACT"
-    - docker push "$DOCKER_IMAGE_LATEST"
+    # Construir y subir imágenes usando docker-compose
+    - echo "Construyendo imágenes Docker para todos los servicios con docker-compose..."
     
+    # Usamos docker-compose para construir las imágenes de todos los servicios definidos en el archivo docker-compose.yml
+    - docker-compose -f docker-compose.yml build --no-cache  # Construcción de las imágenes sin caché
+    
+    # Subir todas las imágenes construidas al registro de Docker
+    - docker-compose -f docker-compose.yml push
+
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
         - docker-compose.yml  # Asegura que docker-compose.yml esté presente
-  allow_failure: true
+
 
 
 

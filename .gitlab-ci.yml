@@ -39,15 +39,17 @@ dockerize-all:
     - apk add --no-cache curl
     
     # Descargar docker-compose
-    - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    - curl -L "https://github.com/docker/compose/releases/download/1.29.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
     
     # Asegúrate de que la ruta esté correcta
     - export PATH=/usr/local/bin:$PATH
+    - echo $PATH
+    - ls -l /usr/local/bin/docker-compose
     
     # Crear un enlace simbólico si no existe
     - if [ ! -e /usr/bin/docker-compose ]; then ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose; fi
-    
+    - uname -m
     # Verifica la instalación de docker-compose
     - /usr/local/bin/docker-compose --version
     - which docker-compose

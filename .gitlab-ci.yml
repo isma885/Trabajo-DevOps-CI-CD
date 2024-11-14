@@ -35,25 +35,19 @@ dockerize-all:
     
     # Instalar docker-compose manualmente
     - apk add --no-cache docker-compose
-    - ls -l /usr/local/bin/
     - apk add --no-cache curl
     
     # Descargar docker-compose
-    - curl -L "https://github.com/docker/compose/releases/download/1.29.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    - curl -L "https://github.com/docker/compose/releases/download/1.29.3/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
     
     # Asegúrate de que la ruta esté correcta
     - export PATH=/usr/local/bin:$PATH
-    - echo $PATH
-    - ls -l /usr/local/bin/docker-compose
     
     # Crear un enlace simbólico si no existe
     - if [ ! -e /usr/bin/docker-compose ]; then ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose; fi
-    - uname -m
     # Verifica la instalación de docker-compose
     - /usr/local/bin/docker-compose --version
-    - which docker-compose
-    - docker-compose --version
   script:
     # Construir y subir imágenes usando docker-compose
     - echo "Construyendo y subiendo todas las imágenes con docker-compose..."

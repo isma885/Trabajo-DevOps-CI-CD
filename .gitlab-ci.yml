@@ -9,7 +9,6 @@ variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
   DOCKER_NETWORK: crud-users-net 
-# 1.3 Build de codigo
 
 dockerize-all:
   image: docker

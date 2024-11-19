@@ -6,7 +6,7 @@ services:
     image: registry-alumnos.labsis.frc.utn.edu.ar:8443/nginx-devops-grupo11:1.0.0
     build: nginx/
     ports:
-      - "8080:80"
+      - "8011:80"
     networks:
       - crud-users-net
     restart: always

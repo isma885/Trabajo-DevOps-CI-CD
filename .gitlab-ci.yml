@@ -378,26 +378,32 @@ scan-python-image:
     - mkdir -p ~/.ssh /usr/local/share/ca-certificates
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE <<EOF
-        set -e
-        # Descargar Trivy si no está disponible
-        docker pull aquasec/trivy:0.55.0
+    - |
+      # Crear un archivo temporal con el script que se ejecutará en el servidor remoto
+      echo "
+      set -e
+      # Descargar Trivy si no está disponible
+      docker pull aquasec/trivy:0.55.0
 
-        # Crear directorio de artefactos
-        mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
+      # Crear directorio de artefactos
+      mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
 
-        # Iniciar sesión en el registro de Docker
-        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      # Iniciar sesión en el registro de Docker
+      echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY
 
-        # Ejecutar escaneo de la imagen y guardar resultados
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $HOME/Library/Caches:/root/.cache/ \
-          aquasec/trivy:0.55.0 image \
-          --timeout 30m \
-          --severity HIGH,CRITICAL \
-          $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-      EOF
+      # Ejecutar escaneo de la imagen y guardar resultados
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        aquasec/trivy:0.55.0 image \
+        --timeout 30m \
+        --severity HIGH,CRITICAL \
+        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
+      " > /tmp/scan_script.sh
+
+      # Conectar al servidor remoto y ejecutar el script
+      ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE 'bash -s' < /tmp/scan_script.sh
+
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -425,26 +431,32 @@ scan-db-image:
     - mkdir -p ~/.ssh /usr/local/share/ca-certificates
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE <<EOF
-        set -e
-        # Descargar Trivy si no está disponible
-        docker pull aquasec/trivy:0.55.0
+    - |
+      # Crear un archivo temporal con el script que se ejecutará en el servidor remoto
+      echo "
+      set -e
+      # Descargar Trivy si no está disponible
+      docker pull aquasec/trivy:0.55.0
 
-        # Crear directorio de artefactos
-        mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
+      # Crear directorio de artefactos
+      mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
 
-        # Iniciar sesión en el registro de Docker
-        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      # Iniciar sesión en el registro de Docker
+      echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY
 
-        # Ejecutar escaneo de la imagen y guardar resultados
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $HOME/Library/Caches:/root/.cache/ \
-          aquasec/trivy:0.55.0 image \
-          --timeout 30m \
-          --severity HIGH,CRITICAL \
-          $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-      EOF
+      # Ejecutar escaneo de la imagen y guardar resultados
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        aquasec/trivy:0.55.0 image \
+        --timeout 30m \
+        --severity HIGH,CRITICAL \
+        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
+      " > /tmp/scan_script.sh
+
+      # Conectar al servidor remoto y ejecutar el script
+      ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE 'bash -s' < /tmp/scan_script.sh
+      
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -472,26 +484,32 @@ scan-nginx-image:
     - mkdir -p ~/.ssh /usr/local/share/ca-certificates
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE <<EOF
-        set -e
-        # Descargar Trivy si no está disponible
-        docker pull aquasec/trivy:0.55.0
+    - |
+      # Crear un archivo temporal con el script que se ejecutará en el servidor remoto
+      echo "
+      set -e
+      # Descargar Trivy si no está disponible
+      docker pull aquasec/trivy:0.55.0
 
-        # Crear directorio de artefactos
-        mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
+      # Crear directorio de artefactos
+      mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
 
-        # Iniciar sesión en el registro de Docker
-        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      # Iniciar sesión en el registro de Docker
+      echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY
 
-        # Ejecutar escaneo de la imagen y guardar resultados
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $HOME/Library/Caches:/root/.cache/ \
-          aquasec/trivy:0.55.0 image \
-          --timeout 30m \
-          --severity HIGH,CRITICAL \
-          $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-      EOF
+      # Ejecutar escaneo de la imagen y guardar resultados
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        aquasec/trivy:0.55.0 image \
+        --timeout 30m \
+        --severity HIGH,CRITICAL \
+        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
+      " > /tmp/scan_script.sh
+
+      # Conectar al servidor remoto y ejecutar el script
+      ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE 'bash -s' < /tmp/scan_script.sh
+      
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -519,26 +537,32 @@ scan-node-image:
     - mkdir -p ~/.ssh /usr/local/share/ca-certificates
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE <<EOF
-        set -e
-        # Descargar Trivy si no está instalado
-        docker pull aquasec/trivy:0.55.0
+    - |
+      # Crear un archivo temporal con el script que se ejecutará en el servidor remoto
+      echo "
+      set -e
+      # Descargar Trivy si no está disponible
+      docker pull aquasec/trivy:0.55.0
 
-        # Crear carpeta para artefactos si no existe
-        mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
+      # Crear directorio de artefactos
+      mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
 
-        # Autenticación en Docker Registry
-        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      # Iniciar sesión en el registro de Docker
+      echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY
 
-        # Escaneo de imagen con configuración optimizada
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $HOME/Library/Caches:/root/.cache/ \
-          aquasec/trivy:0.55.0 image \
-          --timeout 30m \
-          --severity HIGH,CRITICAL \
-          $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-      EOF
+      # Ejecutar escaneo de la imagen y guardar resultados
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        aquasec/trivy:0.55.0 image \
+        --timeout 30m \
+        --severity HIGH,CRITICAL \
+        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
+      " > /tmp/scan_script.sh
+
+      # Conectar al servidor remoto y ejecutar el script
+      ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE 'bash -s' < /tmp/scan_script.sh
+      
     # Descargar resultados del análisis
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -567,28 +591,32 @@ scan-web-image:
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt
   script:
     # Conexión consolidada y escaneo optimizado
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE << EOF
-        set -e
-        # Descargar o actualizar Trivy si es necesario
-        docker pull aquasec/trivy:0.55.0
+    - |
+      # Crear un archivo temporal con el script que se ejecutará en el servidor remoto
+      echo "
+      set -e
+      # Descargar Trivy si no está disponible
+      docker pull aquasec/trivy:0.55.0
 
-        # Crear carpeta de artefactos
-        mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
+      # Crear directorio de artefactos
+      mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts
 
-        # Iniciar sesión en el registro
-        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      # Iniciar sesión en el registro de Docker
+      echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY
 
-        # Ejecutar escaneo con exclusiones y configuración optimizada
-        docker run --rm \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $HOME/Library/Caches:/root/.cache/ \
-          aquasec/trivy:0.55.0 image \
-          --timeout 30m \
-          --severity HIGH,CRITICAL \
-          --skip-dirs /root/.npm,/var/cache \
-          --skip-files /path/to/problematic/file \
-          $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-      EOF
+      # Ejecutar escaneo de la imagen y guardar resultados
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        aquasec/trivy:0.55.0 image \
+        --timeout 30m \
+        --severity HIGH,CRITICAL \
+        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
+      " > /tmp/scan_script.sh
+
+      # Conectar al servidor remoto y ejecutar el script
+      ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE 'bash -s' < /tmp/scan_script.sh
+      
     # Descargar el archivo de resultados
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:

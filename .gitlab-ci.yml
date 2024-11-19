@@ -4,6 +4,7 @@ stages:
   - code-analysis
   - docker-linting
   - build
+  - deploy
 
 variables:
   ALUMNO: devops-grupo11

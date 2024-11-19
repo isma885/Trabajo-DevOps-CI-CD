@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   nginx-users:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/nginx-devops-grupo11:1.0.0
     build: nginx/
     ports:
       - "8080:80"
@@ -15,12 +16,14 @@ services:
       - web
 
   api-node:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/apinode-devops-grupo11:1.0.0
     build: node-api/
     restart: always
     networks:
       - crud-users-net
 
   db-crud-users:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/db-devops-grupo11:1.0.0
     build: db/
     restart: always
     networks:
@@ -35,6 +38,7 @@ services:
 
   api-users:
     build: python-api/
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/apipython-devops-grupo11:1.0.0
     restart: always
     networks:
       - crud-users-net
@@ -48,6 +52,7 @@ services:
       MYSQL_DATABASE_PORT: 3306
 
   web:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/web-devops-grupo11:1.0.0
     build: web/
     restart: always
     networks:

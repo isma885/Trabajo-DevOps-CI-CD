@@ -631,14 +631,20 @@ deploy:
   variables:
     PATH_SERVER_USR: devops
     PATH_COMPOSE: ./docker-compose.yml
+    DOCKER_NETWORK: crud-users-net
   before_script:
     - apk add --no-cache openssh-client
     - eval $(ssh-agent -s)
     - echo "$SERVER_KEY" | tr -d '\r' | ssh-add -
   script:
     # Transferir docker-compose.yml solo si ha cambiado
-    - scp -o StrictHostKeyChecking=no $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/docker-compose.yml || echo "Archivo ya actualizado"
-    
+    - |
+      if [ -f "$PATH_COMPOSE" ]; then
+        scp -o StrictHostKeyChecking=no $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/docker-compose.yml
+      else
+        echo "Archivo docker-compose.yml no encontrado"
+      fi
+
     # Agrupar comandos en una única sesión SSH
     - ssh -o StrictHostKeyChecking=no $SERVER_USR@$SERVER_INSTANCE << EOF
         set -e
@@ -655,4 +661,5 @@ deploy:
         docker compose up -d
         docker ps
       EOF
+
 

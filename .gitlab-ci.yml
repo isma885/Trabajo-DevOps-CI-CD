@@ -1,12 +1,12 @@
 stages:
-  - scan-images-images
+  - scan-images
   - deploy
 
 variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
 
-scan-images-python-image:
+scan-python-image:
   image: docker
   stage: scan-images
   tags: [$TAG]
@@ -38,7 +38,7 @@ scan-images-python-image:
       - $ARTIFACT_FILE_NAME
   allow_failure: true
 
-scan-images-db-image:
+scan-db-image:
   image: docker
   stage: scan-images
   tags: [$TAG]
@@ -70,7 +70,7 @@ scan-images-db-image:
       - $ARTIFACT_FILE_NAME
   allow_failure: true
 
-scan-images-nginx-image:
+scan-nginx-image:
   image: docker
   stage: scan-images
   tags: [$TAG]
@@ -102,7 +102,7 @@ scan-images-nginx-image:
       - $ARTIFACT_FILE_NAME
   allow_failure: true
 
-scan-images-node-image:
+scan-node-image:
   image: docker
   stage: scan-images
   tags: [$TAG]
@@ -134,7 +134,7 @@ scan-images-node-image:
       - $ARTIFACT_FILE_NAME
   allow_failure: true
 
-scan-images-web-image:
+scan-web-image:
   image: docker
   stage: scan-images
   tags: [$TAG]

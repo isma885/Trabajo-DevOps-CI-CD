@@ -397,7 +397,7 @@ scan-python-image:
           --timeout 30m \
           --severity HIGH,CRITICAL \
           $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-    EOF
+      EOF
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -444,7 +444,7 @@ scan-db-image:
           --timeout 30m \
           --severity HIGH,CRITICAL \
           $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-    EOF
+      EOF
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -491,7 +491,7 @@ scan-nginx-image:
           --timeout 30m \
           --severity HIGH,CRITICAL \
           $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-    EOF
+      EOF
     # Descargar artefactos del escaneo
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -538,7 +538,7 @@ scan-node-image:
           --timeout 30m \
           --severity HIGH,CRITICAL \
           $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-    EOF
+      EOF
     # Descargar resultados del análisis
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -588,7 +588,7 @@ scan-web-image:
           --skip-dirs /root/.npm,/var/cache \
           --skip-files /path/to/problematic/file \
           $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME
-    EOF
+      EOF
     # Descargar el archivo de resultados
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
@@ -626,5 +626,5 @@ deploy:
         docker compose down
         docker compose up -d
         docker ps
-    EOF
+      EOF
 

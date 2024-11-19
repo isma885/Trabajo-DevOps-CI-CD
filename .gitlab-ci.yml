@@ -1,10 +1,41 @@
 stages:
+  - build
   - scan-images
   - deploy
 
 variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
+
+dockerize-all:
+  image: docker
+  stage: build
+  tags: [$TAG]
+  variables:
+    DOCKER_BUILDKIT: "1"
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    CA_CERTIFICATE: "$CA_CERTIFICATE"
+  services:
+    - name: docker:24.0.2-dind
+      alias: docker
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "$CA_CERTIFICATE" > /usr/local/share/ca-certificates/my-ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "Construyendo y subiendo todas las imágenes con docker-compose..."
+    - docker-compose -f docker-compose.yml build --no-cache
+    - docker-compose -f docker-compose.yml push
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - docker-compose.yml
+  allow_failure: true
 
 scan-python-image:
   image: docker

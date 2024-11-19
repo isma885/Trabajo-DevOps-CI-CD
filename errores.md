@@ -164,7 +164,7 @@ También cambié esta línea y la puse en dos
            sql = "UPDATE tbl_user SET user_name=%s, user_email=%s, user_password=%s WHERE user_id=%s"
 ```
 
-## 4. Error versiones para hacer el análisis SAST
+## 4. Error en versiones para hacer el análisis SAST
 
 Al usar njsscan nos aparecía este error:
 

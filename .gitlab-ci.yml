@@ -646,7 +646,8 @@ deploy:
       fi
 
     # Agrupar comandos en una única sesión SSH
-    - ssh -o StrictHostKeyChecking=no $SERVER_USR@$SERVER_INSTANCE << EOF
+    - |
+      ssh -o StrictHostKeyChecking=no $SERVER_USR@$SERVER_INSTANCE << EOF
         set -e
         # Crear red si no existe
         docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
@@ -661,5 +662,4 @@ deploy:
         docker compose up -d
         docker ps
       EOF
-
 

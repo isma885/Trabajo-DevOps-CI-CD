@@ -51,10 +51,6 @@ scan-python-image:
     CA_CERTIFICATE: "$CA_CERTIFICATE"
     ARTIFACT_FILE_NAME: api-trivy-scan-images.txt
     TRIVY_CACHE_DIR: /root/.cache/trivy
-  cache:
-    key: trivy-cache
-    paths:
-      - /root/.cache/trivy
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client)'
     - eval $(ssh-agent -s)
@@ -65,15 +61,17 @@ scan-python-image:
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
         docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $TRIVY_CACHE_DIR:/root/.cache/ \
+        -v $TRIVY_CACHE_DIR:/root/.cache \
         aquasec/trivy:0.55.0 image \
         --timeout 10m \
-        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME"
+        --scanners vuln,secret \
+        --ignore-unfixed \
+        \"$DOCKER_IMAGE_NAME\" > \"$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME\""
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
     paths:
@@ -92,12 +90,8 @@ scan-db-image:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     CA_CERTIFICATE: "$CA_CERTIFICATE"
-    ARTIFACT_FILE_NAME: db-trivy-scan-images.txt
+    ARTIFACT_FILE_NAME: api-trivy-scan-images.txt
     TRIVY_CACHE_DIR: /root/.cache/trivy
-  cache:
-    key: trivy-cache
-    paths:
-      - /root/.cache/trivy
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client)'
     - eval $(ssh-agent -s)
@@ -108,15 +102,17 @@ scan-db-image:
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
         docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $TRIVY_CACHE_DIR:/root/.cache/ \
+        -v $TRIVY_CACHE_DIR:/root/.cache \
         aquasec/trivy:0.55.0 image \
         --timeout 10m \
-        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME"
+        --scanners vuln,secret \
+        --ignore-unfixed \
+        \"$DOCKER_IMAGE_NAME\" > \"$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME\""
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
     paths:
@@ -135,12 +131,8 @@ scan-nginx-image:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     CA_CERTIFICATE: "$CA_CERTIFICATE"
-    ARTIFACT_FILE_NAME: nginx-trivy-scan-images.txt
+    ARTIFACT_FILE_NAME: api-trivy-scan-images.txt
     TRIVY_CACHE_DIR: /root/.cache/trivy
-  cache:
-    key: trivy-cache
-    paths:
-      - /root/.cache/trivy
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client)'
     - eval $(ssh-agent -s)
@@ -151,15 +143,17 @@ scan-nginx-image:
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
         docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $TRIVY_CACHE_DIR:/root/.cache/ \
+        -v $TRIVY_CACHE_DIR:/root/.cache \
         aquasec/trivy:0.55.0 image \
         --timeout 10m \
-        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME"
+        --scanners vuln,secret \
+        --ignore-unfixed \
+        \"$DOCKER_IMAGE_NAME\" > \"$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME\""
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
     paths:
@@ -180,10 +174,6 @@ scan-node-image:
     CA_CERTIFICATE: "$CA_CERTIFICATE"
     ARTIFACT_FILE_NAME: api-trivy-scan-images.txt
     TRIVY_CACHE_DIR: /root/.cache/trivy
-  cache:
-    key: trivy-cache
-    paths:
-      - /root/.cache/trivy
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client)'
     - eval $(ssh-agent -s)
@@ -194,15 +184,17 @@ scan-node-image:
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
         docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $TRIVY_CACHE_DIR:/root/.cache/ \
+        -v $TRIVY_CACHE_DIR:/root/.cache \
         aquasec/trivy:0.55.0 image \
         --timeout 10m \
-        $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME"
+        --scanners vuln,secret \
+        --ignore-unfixed \
+        \"$DOCKER_IMAGE_NAME\" > \"$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME\""
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
     paths:
@@ -222,24 +214,34 @@ scan-web-image:
     DOCKER_TLS_CERTDIR: ""
     CA_CERTIFICATE: "$CA_CERTIFICATE"
     ARTIFACT_FILE_NAME: api-trivy-scan-images.txt
+    TRIVY_CACHE_DIR: /root/.cache/trivy
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client)'
     - eval $(ssh-agent -s)
     - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - mkdir -p  /usr/local/share/ca-certificates || exit
+    - mkdir -p /usr/local/share/ca-certificates || exit
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0" 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY " 
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull aquasec/trivy:0.55.0"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.55.0 image $DOCKER_IMAGE_NAME > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
+        docker run \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $TRIVY_CACHE_DIR:/root/.cache \
+        aquasec/trivy:0.55.0 image \
+        --timeout 10m \
+        --scanners vuln,secret \
+        --ignore-unfixed \
+        \"$DOCKER_IMAGE_NAME\" > \"$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME\""
     - scp $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/artifacts/$ARTIFACT_FILE_NAME $ARTIFACT_FILE_NAME
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
   allow_failure: true
+
 
 deploy:
   stage: deploy

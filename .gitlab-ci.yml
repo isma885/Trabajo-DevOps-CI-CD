@@ -307,7 +307,7 @@ docker-lint-base:
     ARTIFACT_FILE_NAME: docker-linting-$ALUMNO.txt
     SCAN_DIRECTORIES: "python-api node-api db nginx web"
   before_script:
-    - pip install checkov semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10  # instalamos una sola vez las dependencias
+    - pip install checkov==2.6.1 semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10  # instalamos una sola vez las dependencias
 
   # iteramos para scanear cada carpeta
   script:

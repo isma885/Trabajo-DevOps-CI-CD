@@ -16,6 +16,7 @@ variables:
   MYSQL_DATABASE_HOST: ${MYSQL_DATABASE_HOST}
   MYSQL_DATABASE_DB: ${MYSQL_DATABASE_DB}
   MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
+  DOCKER_NETWORK: ${DOCKER_NETWORK}
 #
 #
 ## Job para escanear secretos en la API de Python
@@ -601,7 +602,10 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_DB=$MYSQL_DATABASE_DB' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
 
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+

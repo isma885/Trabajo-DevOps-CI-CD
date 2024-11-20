@@ -398,7 +398,7 @@ variables:
 #    paths:
 #      - $ARTIFACT_FILE_NAME
 #
-#dockerize-all:
+dockerize-all:
   image: docker
   stage: build
   tags: [$TAG]

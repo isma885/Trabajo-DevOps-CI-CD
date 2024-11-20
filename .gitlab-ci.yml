@@ -593,7 +593,6 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data"
     - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO  
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY "
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD' > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_USER=$MYSQL_DATABASE_USER' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
@@ -601,6 +600,8 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_HOST=$MYSQL_DATABASE_HOST' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_DB=$MYSQL_DATABASE_DB' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"

@@ -405,7 +405,7 @@ dockerize-all:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - echo "Construyendo y subiendo todas las imágenes con docker-compose..."
-    - docker-compose -f docker-compose.yml build --no-cache
+    - docker-compose -f docker-compose.yml build 
     - docker-compose -f docker-compose.yml push
   rules:
     - if: $CI_COMMIT_BRANCH

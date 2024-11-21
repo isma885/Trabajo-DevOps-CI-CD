@@ -637,6 +637,11 @@ deploy:
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+    # Esperar a que los servicios estén disponibles
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && ./wait-for-it.sh api-users:5000 --timeout=60 --strict -- echo 'API is up!'"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && ./wait-for-it.sh db-crud-users:3306 --timeout=60 --strict -- echo 'Database is up!'"
+
+    # Realizar la prueba de health check
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apinode/test"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/react/"

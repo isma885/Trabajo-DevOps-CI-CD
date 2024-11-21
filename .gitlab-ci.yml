@@ -745,7 +745,6 @@ deploy:
         echo "Archivo docker-compose.yml no encontrado"
       fi
 
-    # Agrupar comandos en una única sesión SSH
     - |
       ssh -o StrictHostKeyChecking=no $SERVER_USR@$SERVER_INSTANCE << EOF
         set -e

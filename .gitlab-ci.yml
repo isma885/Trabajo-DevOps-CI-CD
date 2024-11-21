@@ -18,6 +18,7 @@ variables:
   MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
   DOCKER_NETWORK: ${DOCKER_NETWORK}
 
+
 deploy:
   stage: deploy
   image: alpine:3.18.4
@@ -39,6 +40,7 @@ deploy:
     - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO  
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY "
     
+    # Configuración de variables de entorno
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD' > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_USER=$MYSQL_DATABASE_USER' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PASSWORD=$MYSQL_DATABASE_PASSWORD' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
@@ -46,17 +48,22 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_DB=$MYSQL_DATABASE_DB' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
 
+    # Verificación de variables de entorno
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
-    
+
+    # Detener y eliminar contenedores anteriores si es necesario
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
-    
+
+    # Levantar los contenedores
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
     
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 nc -zv db-crud-users 3306; do echo 'Waiting for Database to be ready...'; sleep 5; done"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-nginx-users-1 curl -s http://api-users:5000/health | grep -q 'healthy'; do echo 'Waiting for API to be ready...'; sleep 5; done"
-    
+    # Verificar que la API esté funcionando
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apinode/test"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/react/"
+
+    # Esperar a que la base de datos esté lista
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker exec devops-grupo11-db-crud-users-1 mysqladmin ping -u root -p$MYSQL_ROOT_PASSWORD"
+

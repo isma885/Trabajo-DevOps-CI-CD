@@ -59,7 +59,7 @@ services:
       - crud-users-net
 
 volumes:
-  db-crud-users-data
+  db-crud-users-data:
 
 networks:
-  crud-users-net
+  crud-users-net:

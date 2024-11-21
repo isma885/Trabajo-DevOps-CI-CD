@@ -647,9 +647,9 @@ deploy:
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker exec devops-grupo11-db-crud-users-1 mysql -u$MYSQL_DATABASE_USER -p$MYSQL_DATABASE_PASSWORD -e 'SHOW DATABASES;'"
 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker logs devops-grupo11-api-users-1"
+    #- ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker logs devops-grupo11-api-users-1"
 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl ifconfig.me"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "ifconfig.me"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "ip addr show"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "hostname"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $SERVER_INSTANCE"

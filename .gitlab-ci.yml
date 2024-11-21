@@ -54,7 +54,7 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
     
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 mysqladmin ping --host=db-crud-users --user=root --password=$MYSQL_ROOT_PASSWORD; do echo 'Waiting for Database to be ready...'; sleep 5; done"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 nc -zv db-crud-users 3306; do echo 'Waiting for Database to be ready...'; sleep 5; done"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-nginx-users-1 curl -s http://api-users:5000/health | grep -q 'healthy'; do echo 'Waiting for API to be ready...'; sleep 5; done"
     
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"

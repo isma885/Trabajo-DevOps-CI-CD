@@ -156,4 +156,4 @@ def health():
 
 if __name__ == "__main__":
     # app.run()
-    app.run("0.0.0.0")
+    app.run(host='127.0.0.1')

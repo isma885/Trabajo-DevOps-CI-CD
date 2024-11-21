@@ -9,6 +9,8 @@ services:
       - "8011:80"
     networks:
       - crud-users-net
+    links:
+      - "api-users:api-users"
     restart: always
     depends_on:
       - api-users

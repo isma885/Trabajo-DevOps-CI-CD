@@ -18,7 +18,6 @@ variables:
   MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
   DOCKER_NETWORK: ${DOCKER_NETWORK}
 
-
 deploy:
   stage: deploy
   image: alpine:3.18.4
@@ -32,15 +31,14 @@ deploy:
     - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - mkdir -p /usr/local/share/ca-certificates || exit
+    - mkdir -p  /usr/local/share/ca-certificates || exit
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker network create $DOCKER_NETWORK || true" 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data"
     - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO  
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY "
-
-    # Crear .env
+    
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD' > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_USER=$MYSQL_DATABASE_USER' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PASSWORD=$MYSQL_DATABASE_PASSWORD' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
@@ -49,20 +47,16 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
-
-    # Levantar contenedores
+    
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+    
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
-
-    # Esperar a que el contenedor de API esté listo
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 curl -s http://localhost:5000/health | grep -q 'healthy'; do echo 'Waiting for API to be ready...'; sleep 5; done"
-
-    # Esperar a que la base de datos esté lista
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-db-crud-users-1 mysqladmin ping --host=localhost --user=root --password=$MYSQL_ROOT_PASSWORD; do echo 'Waiting for Database to be ready...'; sleep 5; done"
-
-    # Realizar la prueba de health check
+    
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 mysqladmin ping --host=db-crud-users --user=root --password=$MYSQL_ROOT_PASSWORD; do echo 'Waiting for Database to be ready...'; sleep 5; done"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-nginx-users-1 curl -s http://api-users:5000/health | grep -q 'healthy'; do echo 'Waiting for API to be ready...'; sleep 5; done"
+    
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apinode/test"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/react/"

@@ -43,19 +43,19 @@ Aplicar conocimientos adquiridos en la materia Desarrollo y Operaciones para mej
 - Mostrar que los containers están corriendo
 
 ### 2. Bitácora de pipeline ejecutado
-En un archivo `pipeline.md` en el repositorio adjuntar imagenes de un pipeline exitoso e imagenes de cada uno de los jobs. Linkeado a esta sección.
+En un archivo [pipeline.md](pipeline.md) en el repositorio adjuntar imagenes de un pipeline exitoso e imagenes de cada uno de los jobs. Linkeado a esta sección.
 > Las imágenes que se agreguen a los md colocarlas en una carpeta `imgs` en la raíz
 
 ### 2. Verificación de deploy
-En un archivo `health-checks.md` en el repositorio. Linkeado a esta sección.
+En un archivo [health-checks.md](health-checks.md) en el repositorio. Linkeado a esta sección.
 Este archivo debe tenes como verificar cada servicio deployado
 
 ### 2. Glosario de errores
-En un archivo `errores.md` en el repositorio. Linkeado a esta sección.
+En un archivo [errores.md](errores.md) en el repositorio. Linkeado a esta sección.
 - Errores que enfrentaron: identificación de error y cómo lo solucionaron
 
 ### 3. Conclusiones
-En un archivo `conclusiones.md` en el repositorio. Linkeado a esta sección.
+En un archivo [conclusiones.md](conclusiones.md) en el repositorio. Linkeado a esta sección.
 Posibles mejoras al pipeline? Puntos de mejora
 
 

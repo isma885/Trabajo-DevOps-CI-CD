@@ -2,9 +2,7 @@
 
 ### 1. API con Python
 
-(Agregar endpoints y cómo probarlos)
-
-`localhost:8080/apipython`
+`localhost:8080/apipython/health`
 
 ### 2. API con Node
 
@@ -14,6 +12,12 @@
 
 `curl http://localhost:8080/react/`
 
+---
 
+# Docker ps en el deploy
 
-curl http://localhost:8080/react/
+![](./imgs/docker-ps.png)
+
+# Curls
+
+![](./imgs/curls.png)

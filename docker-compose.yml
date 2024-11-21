@@ -5,7 +5,7 @@ services:
   nginx-users:
     build: nginx/
     ports:
-      - "8080:80"
+      - "8011:80"
     networks:
       - crud-users-net
     restart: always

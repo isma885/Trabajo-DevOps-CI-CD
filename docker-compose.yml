@@ -3,9 +3,10 @@ version: '3.8'
 services:
 
   nginx-users:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/nginx-devops-grupo11:1.0.0
     build: nginx/
     ports:
-      - "8080:80"
+      - "8011:80"
     networks:
       - crud-users-net
     restart: always
@@ -15,12 +16,14 @@ services:
       - web
 
   api-node:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/apinode-devops-grupo11:1.0.0
     build: node-api/
     restart: always
     networks:
       - crud-users-net
 
   db-crud-users:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/db-devops-grupo11:1.0.0
     build: db/
     restart: always
     networks:
@@ -28,26 +31,28 @@ services:
     volumes:
       - db-crud-users-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: r00t
-      MYSQL_DATABASE: utn
-      MYSQL_USER: testuser
-      MYSQL_PASSWORD: testpass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_DB}
+      MYSQL_USER: ${MYSQL_DATABASE_USER}
+      MYSQL_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
 
   api-users:
     build: python-api/
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/apipython-devops-grupo11:1.0.0
     restart: always
     networks:
       - crud-users-net
     depends_on: 
       - db-crud-users
     environment:
-      MYSQL_DATABASE_USER: testuser
-      MYSQL_DATABASE_PASSWORD: testpass
-      MYSQL_DATABASE_DB: utn
-      MYSQL_DATABASE_HOST: db-crud-users
-      MYSQL_DATABASE_PORT: 3306
+      MYSQL_DATABASE_USER: ${MYSQL_DATABASE_USER}
+      MYSQL_DATABASE_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
+      MYSQL_DATABASE_DB: ${MYSQL_DATABASE_DB}
+      MYSQL_DATABASE_HOST: ${MYSQL_DATABASE_HOST}
+      MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
 
   web:
+    image: registry-alumnos.labsis.frc.utn.edu.ar:8443/web-devops-grupo11:1.0.0
     build: web/
     restart: always
     networks:

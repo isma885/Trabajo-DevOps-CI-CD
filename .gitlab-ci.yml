@@ -645,7 +645,7 @@ deploy:
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker exec devops-grupo11-api-node-1 printenv"
 
-    #ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker exec devops-grupo11-db-crud-users-1 mysql -u$MYSQL_DATABASE_USER -p$MYSQL_DATABASE_PASSWORD -e 'SHOW DATABASES;'"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker exec devops-grupo11-db-crud-users-1 mysql -u$MYSQL_DATABASE_USER -p$MYSQL_DATABASE_PASSWORD -e 'SHOW DATABASES;'"
 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker logs devops-grupo11-api-users-1"
 

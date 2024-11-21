@@ -8,7 +8,7 @@ services:
     ports:
       - "8011:80"
     networks:
-      - crud-users-net
+      - ${DOCKER_NETWORK}
     links:
       - "api-users:api-users"
     restart: always
@@ -22,14 +22,14 @@ services:
     build: node-api/
     restart: always
     networks:
-      - crud-users-net
+      - ${DOCKER_NETWORK}
 
   db-crud-users:
     image: registry-alumnos.labsis.frc.utn.edu.ar:8443/db-devops-grupo11:1.0.0
     build: db/
     restart: always
     networks:
-      - crud-users-net
+      - ${DOCKER_NETWORK}
     volumes:
       - db-crud-users-data:/var/lib/mysql
     environment:
@@ -43,7 +43,7 @@ services:
     image: registry-alumnos.labsis.frc.utn.edu.ar:8443/apipython-devops-grupo11:1.0.0
     restart: always
     networks:
-      - crud-users-net
+      - ${DOCKER_NETWORK}
     links:
       - "db-crud-users:db-crud-users"
     depends_on: 
@@ -60,7 +60,7 @@ services:
     build: web/
     restart: always
     networks:
-      - crud-users-net
+      - ${DOCKER_NETWORK}
 
 volumes:
   db-crud-users-data:

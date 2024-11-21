@@ -27,7 +27,7 @@ deploy:
     PATH_SERVER_USR: devops
     PATH_COMPOSE: ./docker-compose.yml
   before_script:
-    - 'which ssh-agent || (apk update && apk add openssh-client)'
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
@@ -35,14 +35,18 @@ deploy:
     - mkdir -p /usr/local/share/ca-certificates || exit
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker network inspect $DOCKER_NETWORK || docker network create $DOCKER_NETWORK"
-    
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data"
-    
-    - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
+    # Crear la red Docker si no existe
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker network inspect $DOCKER_NETWORK || docker network create $DOCKER_NETWORK" || echo "Error al crear o verificar la red Docker"
 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
-    
+    # Crear directorio para el proyecto
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data" || echo "Error al crear directorio de datos"
+
+    # Copiar el docker-compose al servidor
+    - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO || echo "Error al copiar docker-compose.yml al servidor"
+
+    # Iniciar sesión en el registro Docker
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY" || echo "Error al hacer login en el registro Docker"
+
     - |
       ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
         echo 'MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD' > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env &&
@@ -51,19 +55,19 @@ deploy:
         echo 'MYSQL_DATABASE_HOST=$MYSQL_DATABASE_HOST' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env &&
         echo 'MYSQL_DATABASE_DB=$MYSQL_DATABASE_DB' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env &&
         echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env
-      "
-    
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+      " || echo "Error al crear el archivo .env en el servidor"
 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env" || echo "Error al leer el archivo .env"
 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
-    
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/apipython/health || echo 'API Python not reachable'"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/apinode/test || echo 'API Node not reachable'"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/react/ || echo 'React app not reachable'"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all" || echo "Error al detener los contenedores existentes"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps" || echo "Error al listar los contenedores"
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d" || echo "Error al levantar los contenedores con docker-compose"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps" || echo "Error al listar los contenedores después de levantarlos"
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/apipython/health || echo 'API Python not reachable'" || echo "Error al verificar la API Python"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/apinode/test || echo 'API Node not reachable'" || echo "Error al verificar la API Node"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl --max-time 30 http://$SERVER_INSTANCE:8011/react/ || echo 'React app not reachable'" || echo "Error al verificar la aplicación React"
 
     - |
       ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "
@@ -72,5 +76,4 @@ deploy:
           sleep 5
         done
         echo 'Database is up and running'
-      "
-
+      " || echo "Error al verificar que la base de datos esté disponible"

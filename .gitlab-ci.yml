@@ -18,6 +18,7 @@ variables:
   MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
   DOCKER_NETWORK: ${DOCKER_NETWORK}
 
+
 deploy:
   stage: deploy
   image: alpine:3.18.4
@@ -33,9 +34,6 @@ deploy:
     - chmod 700 ~/.ssh
     - mkdir -p /usr/local/share/ca-certificates || exit
     - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
-    # Descargar wait-for-it
-    - wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod +x wait-for-it.sh
-    - mv wait-for-it.sh /usr/local/bin/wait-for-it # Mover a una ubicación accesible
   script:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker network create $DOCKER_NETWORK || true" 
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data"
@@ -58,13 +56,13 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
 
-    # Esperar a que los servicios estén disponibles
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && wait-for-it api-users:5000 --timeout=60 --strict -- echo 'API is up!'"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && wait-for-it db-crud-users:3306 --timeout=60 --strict -- echo 'Database is up!'"
+    # Esperar a que el contenedor de API esté listo
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-api-users-1 curl -s http://localhost:5000/health | grep -q 'healthy'; do echo 'Waiting for API to be ready...'; sleep 5; done"
+
+    # Esperar a que la base de datos esté lista
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && while ! docker exec devops-grupo11-db-crud-users-1 mysqladmin ping --host=localhost --user=root --password=$MYSQL_ROOT_PASSWORD; do echo 'Waiting for Database to be ready...'; sleep 5; done"
 
     # Realizar la prueba de health check
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apinode/test"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/react/"
-
-

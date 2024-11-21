@@ -10,6 +10,14 @@ stages:
 variables:
   ALUMNO: devops-grupo11
   TAG: devops-runner
+  MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  MYSQL_DATABASE_USER: ${MYSQL_DATABASE_USER}
+  MYSQL_DATABASE_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
+  MYSQL_DATABASE_HOST: ${MYSQL_DATABASE_HOST}
+  MYSQL_DATABASE_DB: ${MYSQL_DATABASE_DB}
+  MYSQL_DATABASE_PORT: ${MYSQL_DATABASE_PORT}
+  DOCKER_NETWORK: ${DOCKER_NETWORK}
+
 
 # Job para escanear secretos en la API de Python
 scan-secrets-python:
@@ -87,9 +95,6 @@ scan-secrets-react:
       - $ARTIFACT_FILE_NAME
 
 
-# 1.2 linting de Código (sin escaneo de secretos)
-
-# code-linting para la API de Python
 lint-python-api:
   image: python:3.9-bullseye
   stage: code-linting
@@ -101,18 +106,19 @@ lint-python-api:
     paths:
       - .venv/
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install flake8
-    - cd python-api
-    - ls -la
-    - pip freeze
-    - flake8 . --exclude=venv,.venv,build,dist --verbose > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code python-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install flake8
+        cd python-api
+        ls -la
+        pip freeze
+        flake8 . --exclude=venv,.venv,build,dist --verbose > "../$ARTIFACT_FILE_NAME"
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# code-linting para la API de Node
 lint-node-api:
   image: node:18
   stage: code-linting
@@ -124,16 +130,17 @@ lint-node-api:
     paths:
       - node_modules/
   script:
-    - cd node-api
-    - npm install
-    - npm list
-    - ls -la
-    - npx eslint . --ignore-pattern "node_modules/*" --fix > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code node-api/ || (
+        cd node-api
+        npm install
+        npm list
+        ls -la
+        npx eslint . --ignore-pattern "node_modules/*" --fix > "../$ARTIFACT_FILE_NAME"
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
 
-# code-linting para el frontend de React
 lint-react:
   image: node:18
   stage: code-linting
@@ -145,9 +152,11 @@ lint-react:
     paths:
       - node_modules/
   script:
-    - cd web
-    - npm install
-    - npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+    - git diff --exit-code web/ || (
+        cd web
+        npm install
+        npx eslint . --ignore-pattern "node_modules/*" > "../$ARTIFACT_FILE_NAME"
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -160,10 +169,12 @@ sast-scan-node:
   variables:
     ARTIFACT_FILE_NAME: sast-scan-node-$ALUMNO.txt
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install njsscan==0.2.2 semgrep==0.38.0
-    - njsscan node-api/ > $ARTIFACT_FILE_NAME
+    - git diff --exit-code node-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install njsscan==0.2.2 semgrep==0.38.0
+        njsscan node-api/ > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -176,10 +187,12 @@ sast-scan-react:
   variables:
     ARTIFACT_FILE_NAME: sast-scan-react-$ALUMNO.txt
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install njsscan==0.2.2 semgrep==0.38.0
-    - njsscan web/ > $ARTIFACT_FILE_NAME
+    - git diff --exit-code web/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install njsscan==0.2.2 semgrep==0.38.0
+        njsscan web/ > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -200,20 +213,24 @@ sca-scan-node:
     DOCKER_TLS_CERTDIR: ""
     CA_CERTIFICATE: "$CA_CERTIFICATE"
   before_script:
-    - 'which ssh-agent || ( apk update && apk add openssh-client)'
-    - eval $(ssh-agent -s)
-    - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - mkdir -p /usr/local/share/ca-certificates || exit
-    - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+    - git diff --exit-code node-api/ || (
+        'which ssh-agent || ( apk update && apk add openssh-client)'
+        eval $(ssh-agent -s)
+        echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        mkdir -p /usr/local/share/ca-certificates || exit
+        echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+      )
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
-    - scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
-      "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
-    - scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+    - git diff --exit-code node-api/ || (
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
+        scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
+        "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
+        scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -234,20 +251,24 @@ sca-scan-react:
     DOCKER_TLS_CERTDIR: ""
     CA_CERTIFICATE: "$CA_CERTIFICATE"
   before_script:
-    - 'which ssh-agent || ( apk update && apk add openssh-client)'
-    - eval $(ssh-agent -s)
-    - echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - mkdir -p /usr/local/share/ca-certificates || exit
-    - echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+    - git diff --exit-code web/ || (
+        'which ssh-agent || ( apk update && apk add openssh-client)'
+        eval $(ssh-agent -s)
+        echo "$SERVER_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        mkdir -p /usr/local/share/ca-certificates || exit
+        echo "$CA_CERTIFICATE" > /etc/ssl/certs/my-ca.crt || exit
+      )
   script:
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
-    - scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
-      "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
-    - scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+    - git diff --exit-code web/ || (
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "docker pull gruebel/retirejs:latest" 
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO"
+        scp -r $PATH_CODE $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO
+        ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE \
+        "docker run --rm -v /tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE:/app gruebel/retirejs:latest --outputformat text --outputpath /app/$ARTIFACT_FILE_NAME"
+        scp $SERVER_USR@$SERVER_INSTANCE:/tmp/$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/$PATH_CODE/$ARTIFACT_FILE_NAME .
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -261,10 +282,12 @@ sast-scan-python:
     ARTIFACT_FILE_NAME: sast-scan-python-$ALUMNO.txt
     SCAN_DIRECTORY: python-api
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install bandit
-    - bandit -r $SCAN_DIRECTORY > $ARTIFACT_FILE_NAME
+    - git diff --exit-code python-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install bandit
+        bandit -r $SCAN_DIRECTORY > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -277,10 +300,12 @@ sca-scan-python:
   variables:
     ARTIFACT_FILE_NAME: sca-scan-python-$ALUMNO.txt
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install safety
-    - safety check -r python-api/requirements.txt > $ARTIFACT_FILE_NAME
+    - git diff --exit-code python-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install safety
+        safety check -r python-api/requirements.txt > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -294,11 +319,13 @@ docker-lint-python:
     ARTIFACT_FILE_NAME: python-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: python-api
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install checkov
-    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+    - git diff --exit-code python-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install checkov
+        pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+        checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -312,11 +339,13 @@ docker-lint-node:
     ARTIFACT_FILE_NAME: node-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: node-api
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install checkov
-    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+    - git diff --exit-code node-api/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install checkov
+        pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+        checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -330,11 +359,13 @@ docker-lint-db:
     ARTIFACT_FILE_NAME: db-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: db
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install checkov
-    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+    - git diff --exit-code db/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install checkov
+        pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+        checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -348,11 +379,13 @@ docker-lint-nginx:
     ARTIFACT_FILE_NAME: nginx-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: nginx
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install checkov
-    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+    - git diff --exit-code nginx/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install checkov
+        pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+        checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -366,11 +399,13 @@ docker-lint-web:
     ARTIFACT_FILE_NAME: web-docker-linting-$ALUMNO.txt
     SCAN_DIRECTORY: web
   script:
-    - python3 -m venv .venv
-    - source .venv/bin/activate
-    - pip install checkov
-    - pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
-    - checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+    - git diff --exit-code web/ || (
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install checkov
+        pip install semgrep==0.38.0 jsonschema==3.2.0 ruamel.yaml==0.16.10
+        checkov -f $SCAN_DIRECTORY/Dockerfile --framework dockerfile > $ARTIFACT_FILE_NAME
+      )
   artifacts:
     paths:
       - $ARTIFACT_FILE_NAME
@@ -397,7 +432,7 @@ dockerize-all:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - echo "Construyendo y subiendo todas las imágenes con docker-compose..."
-    - docker-compose -f docker-compose.yml build --no-cache
+    - docker-compose -f docker-compose.yml build 
     - docker-compose -f docker-compose.yml push
   rules:
     - if: $CI_COMMIT_BRANCH
@@ -586,6 +621,24 @@ deploy:
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "mkdir -p $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/data"
     - scp $PATH_COMPOSE $SERVER_USR@$SERVER_INSTANCE:$PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO  
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin  $CI_REGISTRY "
+
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD' > $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_USER=$MYSQL_DATABASE_USER' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PASSWORD=$MYSQL_DATABASE_PASSWORD' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_HOST=$MYSQL_DATABASE_HOST' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_DB=$MYSQL_DATABASE_DB' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "echo 'MYSQL_DATABASE_PORT=$MYSQL_DATABASE_PORT' >> $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cat $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO/.env"
+
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose down --rmi all"
-    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose up -d"
     - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker compose --env-file .env up -d"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "cd $PATH_SERVER_USR/$CI_PROJECT_NAME/$ALUMNO && docker ps"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apipython/health"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/apinode/test"
+    - ssh -o "StrictHostKeyChecking=no" $SERVER_USR@$SERVER_INSTANCE "curl http://$SERVER_INSTANCE:8011/react/"
+
+

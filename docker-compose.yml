@@ -42,6 +42,8 @@ services:
     restart: always
     networks:
       - crud-users-net
+    links:
+      - "db-crud-users:db-crud-users"
     depends_on: 
       - db-crud-users
     environment:
